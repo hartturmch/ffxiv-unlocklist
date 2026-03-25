@@ -1,0 +1,120 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FFXIV Content Unlock Checklist</title>
+<style>
+:root{--bg:#111214;--panel:#1e1f22;--panel2:#25262b;--card:#2b2d31;--card2:#313338;--text:#f2f3f5;--muted:#b5bac1;--soft:#949ba4;--border:#3f4147;--accent:#a970ff;--accent2:#8b5cf6;--ok:#43b581;--chip:#3a3c43;}
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:linear-gradient(180deg,#0f1013,#141519 30%,#111214);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.top{position:sticky;top:0;z-index:10;background:rgba(17,18,20,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.wrap{max-width:1400px;margin:0 auto;padding:16px}
+.h1{font-size:clamp(1.35rem,2vw,2rem);font-weight:800;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 14px}
+.toolbar{display:grid;grid-template-columns:minmax(240px,1.5fr) repeat(3,minmax(140px,.7fr)) auto auto auto;gap:10px}
+input,select,button{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font:inherit}
+button{cursor:pointer} button:hover{border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 16px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px 14px} .stat b{display:block;font-size:1.15rem}
+.sectionTitle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 10px;color:var(--muted)}
+.list{display:grid;gap:12px}
+.card{display:grid;grid-template-columns:auto 1fr;gap:14px;background:linear-gradient(180deg,var(--card),#2a2c31);border:1px solid var(--border);border-radius:18px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.card.done{opacity:.72}
+.check{padding-top:2px} .check input{width:22px;height:22px;accent-color:var(--ok)}
+.mainTitle{font-size:1.5rem;font-weight:800;line-height:1.2;margin:0 0 10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px} .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:5px 10px;color:var(--text);font-size:.9rem}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{background:linear-gradient(180deg,var(--panel2),#26282d);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:10px 12px;min-height:68px}
+.label{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:#c6a9ff;margin-bottom:6px}
+.value{font-size:1rem;line-height:1.35;word-break:break-word}
+.mainTitle a,.value a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(198,169,255,.42);box-shadow:inset 0 -1px 0 rgba(198,169,255,.16);transition:color .18s ease,border-color .18s ease,box-shadow .18s ease,background-color .18s ease;word-break:break-word}
+.mainTitle a:hover,.value a:hover{color:#f1e6ff;border-bottom-color:rgba(241,230,255,.85);box-shadow:inset 0 -1px 0 rgba(241,230,255,.38);background-color:rgba(198,169,255,.08)}
+.muted{color:var(--soft)}
+.hidden{display:none!important}
+footer{color:var(--muted);padding:22px 0 6px}
+@media (max-width:1100px){.toolbar{grid-template-columns:1fr 1fr 1fr;} .toolbar > :first-child{grid-column:1/-1} .stats{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.fields{grid-template-columns:1fr} .toolbar{grid-template-columns:1fr 1fr} .toolbar > :first-child{grid-column:1/-1} .stats{grid-template-columns:1fr 1fr} .mainTitle{font-size:1.2rem}}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  cursor:pointer;
+  user-select:none;
+}
+.section-toggle{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  color:#d7d9e0;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:12px;
+  line-height:1;
+}
+.section-content{display:none}
+.section-content.open{display:block}
+
+
+.elegant-disclaimer{
+  margin:32px auto 18px;
+  padding:18px 20px;
+  max-width:1100px;
+  border-top:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.72);
+  text-align:center;
+  font-size:13px;
+  line-height:1.7;
+}
+.elegant-disclaimer p{
+  margin:0;
+}
+.elegant-disclaimer p + p{
+  margin-top:6px;
+}
+.elegant-disclaimer a{
+  color:rgba(255,255,255,.78);
+  text-decoration:none;
+}
+.elegant-disclaimer a:hover{
+  text-decoration:underline;
+}
+
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+<div class="h1">FFXIV Content Unlock Checklist</div>
+<p class="sub"></p>
+<div class="toolbar">
+<input id="search" type="search" placeholder="Search por quest, unlock, location, type...">
+<select id="sectionFilter"><option value="">Todas as seÃ§Ãµes</option></select>
+<select id="typeFilter"><option value="">All types</option></select>
+<select id="sortBy"><option value="section">Sort by seÃ§Ã£o</option><option value="quest">Sort by quest</option><option value="unlock">Sort by unlock</option></select>
+<button id="toggleCompleted">Show completed</button>
+<button id="clearProgress">Clear progress</button>
+<button id="exportProgress">Export</button>
+</div>
+</div></div>
+<main class="wrap">
+<div class="stats">
+<div class="stat"><b id="totalCount">0</b>Total</div>
+<div class="stat"><b id="doneCount">0</b>Completas</div>
+<div class="stat"><b id="visibleCount">0</b>VisÃ­veis</div>
+<div class="stat"><b id="progressCount">0%</b>Progress</div>
+</div>
+<div id="app"></div>
+<footer></footer>
+</main>
+<script src="ffxiv-checklist-app.js"></script>
+<footer class="elegant-disclaimer">
+  <p>Crafted with care using <em>Content Unlock</em> from the FFXIV Console Games Wiki as its primary reference.</p>
+  <p><a href="https://ffxiv.consolegameswiki.com/wiki/Content_Unlock" target="_blank" rel="noopener noreferrer">https://ffxiv.consolegameswiki.com/wiki/Content_Unlock</a></p>
+</footer>
+
+</body></html>
+
+
+
+
+
+

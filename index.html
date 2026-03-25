@@ -1,0 +1,473 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFXIV Content Unlock Checklist</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #c9a95c;
+            --primary-hover: #e8cca4;
+            --bg-dark: #0f1319;
+            --bg-panel: rgba(25, 32, 43, 0.7);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: rgba(201, 169, 92, 0.3);
+            --accent: #4f46e5;
+            --glass-bg: rgba(15, 19, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090a0f 0%, #1a1b26 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, rgba(201, 169, 92, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(201, 169, 92, 0.2);
+            font-weight: 700;
+        }
+
+        .progress-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(201, 169, 92, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        select.search-box {
+            flex: initial;
+            min-width: 150px;
+            cursor: pointer;
+        }
+        
+        select.search-box option {
+            background: #1a1b26;
+            color: white;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(201, 169, 92, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        button:hover {
+            background: rgba(201, 169, 92, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .category {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(201, 169, 92, 0.2);
+        }
+
+        .category-header {
+            background: rgba(201, 169, 92, 0.05);
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .category-header:hover {
+            background: rgba(201, 169, 92, 0.1);
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .category-stats {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .checklist {
+            padding: 0;
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1px;
+            background: var(--glass-border);
+        }
+
+        .checklist-item {
+            background: var(--bg-panel);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checklist-item:hover {
+            background: rgba(25, 32, 43, 0.9);
+        }
+
+        .checklist-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .checklist-item.completed {
+            background: rgba(201, 169, 92, 0.03);
+            opacity: 0.6;
+        }
+
+        .checklist-item.completed::before {
+            transform: scaleY(1);
+            background: #10b981;
+        }
+
+        .checkbox-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-top: 3px;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            animation: checkmark 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(201, 169, 92, 0.3);
+        }
+
+        .content-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .content-name {
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+            transition: color 0.2s ease;
+            display: block;
+            font-size: 1.05rem;
+        }
+
+        .checklist-item.completed .content-name {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            text-decoration-color: rgba(255,255,255,0.2);
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            color: #ddd;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.type { background: rgba(79, 70, 229, 0.2); color: #a5b4fc; border: 1px solid rgba(79, 70, 229, 0.3); }
+        .badge.ilvl { background: rgba(201, 169, 92, 0.15); color: #fde68a; border: 1px solid rgba(201, 169, 92, 0.3); }
+
+        .content-quest {
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .content-loc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .content-desc {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .content-name a,
+        .content-quest a,
+        .content-loc a,
+        .content-desc a {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+            box-shadow: inset 0 -1px 0 rgba(201, 169, 92, 0.14);
+            transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+            word-break: break-word;
+        }
+
+        .content-name a:hover,
+        .content-quest a:hover,
+        .content-loc a:hover,
+        .content-desc a:hover {
+            color: #f7e4a4;
+            border-bottom-color: rgba(247, 228, 164, 0.8);
+            box-shadow: inset 0 -1px 0 rgba(247, 228, 164, 0.35);
+            background-color: rgba(201, 169, 92, 0.08);
+        }
+        
+        .elegant-disclaimer {
+            margin: 32px auto 18px;
+            padding: 18px 20px;
+            max-width: 1100px;
+            border-top: 1px solid rgba(255,255,255,.12);
+            color: rgba(255,255,255,.72);
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        
+        .elegant-disclaimer p {
+            margin: 0;
+        }
+        
+        .elegant-disclaimer p + p {
+            margin-top: 6px;
+        }
+        
+        .elegant-disclaimer a {
+            color: rgba(255,255,255,.78);
+            text-decoration: none;
+        }
+        
+        .elegant-disclaimer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes checkmark { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .checklist { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FFXIV Content Unlock Checklist</h1>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Overall Progress</span>
+                <span id="progress-text">0 / 0 (0%)</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="search-input" class="search-box" placeholder="Search quests, unlocks, locations..." onchange="filterItems()" onkeyup="filterItems()">
+            <select id="type-filter" class="search-box" onchange="filterItems()">
+                <option value="">All types</option>
+            </select>
+            <div class="btn-group">
+                <button id="toggle-completed-btn" onclick="toggleCompletedVisibility()">Show Completed</button>
+                <button onclick="expandAll()">Expand All</button>
+                <button onclick="collapseAll()">Collapse All</button>
+                <button onclick="resetProgress()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3)">Reset</button>
+            </div>
+        </div>
+
+        <div id="checklist-container">
+            <!-- Rendered via JS -->
+        </div>
+        
+        <footer class="elegant-disclaimer">
+            <p>Crafted with care using <em>Content Unlock</em> from the FFXIV Console Games Wiki as its primary reference.</p>
+            <p><a href="https://ffxiv.consolegameswiki.com/wiki/Content_Unlock" target="_blank" rel="noopener noreferrer">https://ffxiv.consolegameswiki.com/wiki/Content_Unlock</a></p>
+        </footer>
+    </div>
+
+    <script src="index-app.js"></script>
+</body>
+</html>
+
+
+
