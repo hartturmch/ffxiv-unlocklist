@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Content Guide</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #c9a95c;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 19, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090a0f 0%, #1a1b26 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(201, 169, 92, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .page-shell {
+            max-width: 1520px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 1rem 1.1rem 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(201, 169, 92, 0.05);
+        }
+
+        .sidebar-title {
+            color: var(--primary);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            padding: 0.75rem;
+            gap: 0.55rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.85rem 0.95rem;
+            border-radius: 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            border-color: rgba(201, 169, 92, 0.45);
+            background: linear-gradient(180deg, rgba(201, 169, 92, 0.14), rgba(201, 169, 92, 0.06));
+            color: #f7e4a4;
+        }
+
+        .sidebar-link-title {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link-copy {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .content {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .hero, .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            overflow: hidden;
+        }
+
+        .hero-copy {
+            padding: 1.35rem 1.5rem 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-copy p {
+            color: var(--text-muted);
+        }
+
+        .panel {
+            padding: 1.3rem 1.4rem;
+        }
+
+        h2 {
+            color: #f7e4a4;
+            font-size: 1.2rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 0.65rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(79, 70, 229, 0.14);
+            border: 1px solid rgba(79, 70, 229, 0.28);
+            color: #c7d2fe;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .section-kicker.alt {
+            background: rgba(34, 197, 94, 0.14);
+            border-color: rgba(34, 197, 94, 0.24);
+            color: #bbf7d0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.9rem;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 0.95rem 1rem;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #f7e4a4;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            margin-top: 0.2rem;
+        }
+
+        .checklist {
+            display: grid;
+            gap: 0.95rem;
+        }
+
+        .weekly-card {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: start;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1rem 1.05rem;
+        }
+
+        .weekly-card.completed {
+            opacity: 0.72;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .weekly-card input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.25);
+            cursor: pointer;
+            position: relative;
+            margin-top: 0.2rem;
+        }
+
+        .weekly-card input[type="checkbox"]:checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .weekly-card input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .weekly-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #dbe6f3;
+        }
+
+        .weekly-meta {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-top: 0.2rem;
+        }
+
+        .weekly-copy {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-top: 0.55rem;
+        }
+
+        .weekly-details {
+            margin-top: 0.8rem;
+            padding-left: 1rem;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+
+        .weekly-details li + li {
+            margin-top: 0.35rem;
+        }
+
+        .weekly-details a {
+            color: #f7e4a4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+        }
+
+        .weekly-details a:hover {
+            border-bottom-color: rgba(247, 228, 164, 0.85);
+        }
+
+        .weekly-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn, .link-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover, .link-btn:hover {
+            border-color: rgba(201, 169, 92, 0.45);
+            color: #f7e4a4;
+        }
+
+        p + p {
+            margin-top: 0.65rem;
+        }
+
+        ul {
+            padding-left: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        li + li {
+            margin-top: 0.45rem;
+        }
+
+        a {
+            color: #f7e4a4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+        }
+
+        a:hover {
+            border-bottom-color: rgba(247, 228, 164, 0.85);
+        }
+
+        .mini {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        @media (max-width: 980px) {
+            .weekly-card {
+                grid-template-columns: auto minmax(0, 1fr);
+            }
+
+            .weekly-actions {
+                grid-column: 2;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .page-shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .stats { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+            .weekly-card { grid-template-columns: auto minmax(0, 1fr); }
+            .weekly-actions { grid-column: 1 / -1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-title">Guides</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Main Checklist</span>
+                    <span class="sidebar-link-copy">Unlock Checklist</span>
+                </a>
+                <a href="aether-currents-guide.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Aether Currents Guide</span>
+                    <span class="sidebar-link-copy">Unlock flying on expansion maps.</span>
+                </a>
+                <a href="weekly-content-guide.html" class="sidebar-link active">
+                    <span class="sidebar-link-title">Weekly Content Guide</span>
+                    <span class="sidebar-link-copy">Weekly Routine</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="hero">
+                <div class="hero-copy">
+                    <h1>Weekly Content Guide</h1>
+                    <p>Use this page as the weekly operating list. Mark the systems you already handled this week and keep the recurring instructions here in the same place.</p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>This Week</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-value" id="weekly-done-count">0 / 0</span>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="weekly-progress-percent">0%</span>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                    <div class="stat">
+                        <button class="btn" id="reset-weekly-btn" type="button">Reset Weekly Checklist</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Weekly Checklist</h2>
+                <div id="weekly-checklist" class="checklist">
+                    <article class="weekly-card" data-item-id="wondrous_tails">
+                        <input class="weekly-checkbox" id="weekly-wondrous_tails" type="checkbox" data-item-id="wondrous_tails">
+                        <div>
+                            <div class="weekly-title">Wondrous Tails</div>
+                            <p class="weekly-copy">Use this when you already picked up, progressed, or turned in your current Wondrous Tails journal for the week.</p>
+                            <ul class="weekly-details">
+                                <li>Main NPC: <a href="https://ffxiv.consolegameswiki.com/wiki/Khloe_Aliapoh" target="_blank" rel="noopener noreferrer">Khloe Aliapoh</a> in Idyllshire.</li>
+                                <li>Best weekly use: pick up the journal after reset, clear easy unsynced duties, and turn it in once you have your preferred result.</li>
+                                <li>Second Chance tools matter when you want to improve line outcomes rather than just finish 9 seals.</li>
+                            </ul>
+                        </div>
+                        <div class="weekly-actions">
+                            <a class="link-btn" href="wondrous-tails-guide.html">How To Do It</a>
+                        </div>
+                    </article>
+
+                    <article class="weekly-card" data-item-id="jumbo_cactpot">
+                        <input class="weekly-checkbox" id="weekly-jumbo_cactpot" type="checkbox" data-item-id="jumbo_cactpot">
+                        <div>
+                            <div class="weekly-title">Jumbo Cactpot</div>
+                            <p class="weekly-copy">Use this when you already bought your Jumbo Cactpot ticket or checked the weekly result and collected what you needed.</p>
+                            <ul class="weekly-details">
+                                <li>If the Gold Saucer quest is missing, you usually have not reached the level 15 MSQ gate yet.</li>
+                                <li>Inside the Gold Saucer, speak with <a href="https://ffxiv.consolegameswiki.com/wiki/Jumbo_Cactpot_Broker" target="_blank" rel="noopener noreferrer">Jumbo Cactpot Broker</a> at X:8.5, Y:5.9.</li>
+                                <li><a href="https://ffxiv.consolegameswiki.com/wiki/Hitting_the_Cactpot?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Hitting the Cactpot</a> has no steps; talking to the NPC unlocks Jumbo Cactpot immediately.</li>
+                            </ul>
+                        </div>
+                        <div class="weekly-actions">
+                            <a class="link-btn" href="jumbo-cactpot-guide.html">How To Do It</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="weekly-content-app.js"></script>
+</body>
+</html>

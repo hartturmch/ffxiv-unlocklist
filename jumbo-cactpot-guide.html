@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumbo Cactpot Guide</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #c9a95c;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 19, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090a0f 0%, #1a1b26 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(201, 169, 92, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .page-shell {
+            max-width: 1520px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 1rem 1.1rem 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(201, 169, 92, 0.05);
+        }
+
+        .sidebar-title {
+            color: var(--primary);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            padding: 0.75rem;
+            gap: 0.55rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.85rem 0.95rem;
+            border-radius: 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            border-color: rgba(201, 169, 92, 0.45);
+            background: linear-gradient(180deg, rgba(201, 169, 92, 0.14), rgba(201, 169, 92, 0.06));
+            color: #f7e4a4;
+        }
+
+        .sidebar-link-title {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link-copy {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .content {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .hero, .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-copy {
+            padding: 1.35rem 1.5rem 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-copy p {
+            color: var(--text-muted);
+        }
+
+        .hero-copy .mini {
+            margin-top: 0.75rem;
+        }
+
+        .panel {
+            padding: 1.3rem 1.4rem;
+        }
+
+        h2 {
+            color: #f7e4a4;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1rem 1.05rem;
+        }
+
+        .card h3 {
+            color: #dbe6f3;
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        p + p {
+            margin-top: 0.65rem;
+        }
+
+        ul {
+            padding-left: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        li + li {
+            margin-top: 0.45rem;
+        }
+
+        a {
+            color: #f7e4a4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+        }
+
+        a:hover {
+            border-bottom-color: rgba(247, 228, 164, 0.85);
+        }
+
+        .mini {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .page-shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-title">Guides</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Main Checklist</span>
+                    <span class="sidebar-link-copy">Unlock Checklist</span>
+                </a>
+                <a href="aether-currents-guide.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Aether Currents Guide</span>
+                    <span class="sidebar-link-copy">Unlock flying on expansion maps.</span>
+                </a>
+                <a href="weekly-content-guide.html" class="sidebar-link active">
+                    <span class="sidebar-link-title">Weekly Content Guide</span>
+                    <span class="sidebar-link-copy">Weekly Routine</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="hero">
+                <div class="hero-copy">
+                    <h1>Jumbo Cactpot Guide</h1>
+                    <p>Jumbo Cactpot is the recurring Gold Saucer lottery. The one-time unlock is small, but it depends on the Gold Saucer being unlocked first, so it makes sense to keep it documented as weekly content rather than as a random detached unlock note.</p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Prerequisite: Unlock The Gold Saucer</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Where to start</h3>
+                        <p>Go to Ul'dah - Steps of Nald.</p>
+                    </div>
+                    <div class="card">
+                        <h3>NPC</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/Well-heeled_Youth" target="_blank" rel="noopener noreferrer">Well-heeled Youth</a> at X:9.6, Y:9.0.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Quest</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/It_Could_Happen_to_You" target="_blank" rel="noopener noreferrer">It Could Happen to You</a></p>
+                    </div>
+                    <div class="card">
+                        <h3>If it is missing</h3>
+                        <p>You usually have not reached the level 15 MSQ gate that opens this content yet.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>How To Unlock Jumbo Cactpot</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Where to go</h3>
+                        <p>The Gold Saucer, X:8.5, Y:5.9.</p>
+                    </div>
+                    <div class="card">
+                        <h3>NPC</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/Jumbo_Cactpot_Broker" target="_blank" rel="noopener noreferrer">Jumbo Cactpot Broker</a></p>
+                    </div>
+                    <div class="card">
+                        <h3>Quest</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/Hitting_the_Cactpot?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Hitting the Cactpot</a></p>
+                    </div>
+                    <div class="card">
+                        <h3>Important detail</h3>
+                        <p>It has no actual steps. Talking to the NPC accepts and clears the unlock immediately.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>What To Do Weekly</h2>
+                <ul>
+                    <li>Go to the Gold Saucer and buy your weekly Jumbo Cactpot ticket.</li>
+                    <li>Check the result on schedule and collect anything you need to collect.</li>
+                    <li>Use the weekly checklist page as the reminder layer, not the permanent unlock page.</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>

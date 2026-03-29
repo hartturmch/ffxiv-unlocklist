@@ -335,6 +335,114 @@ function Get-SecondaryUnlock {
     return ''
 }
 
+function New-TextPart {
+    param(
+        [string]$Text,
+        [string]$Href
+    )
+
+    return [pscustomobject]@{
+        text = $Text
+        url = Convert-WikiHref $Href
+    }
+}
+
+function New-LocationPart {
+    param(
+        [string]$Place,
+        [string]$Coords,
+        [string]$Href
+    )
+
+    return [pscustomobject]@{
+        place = $Place
+        coords = $Coords
+        display = "$Coords`:$Place"
+        url = Convert-WikiHref $Href
+    }
+}
+
+function Apply-ManualEnhancements {
+    param([object[]]$Items)
+
+    $enhancedItems = New-Object System.Collections.Generic.List[object]
+    foreach ($item in @($Items)) {
+        $enhancedItems.Add($item)
+    }
+
+    $goldSaucer = $null
+    foreach ($candidate in $enhancedItems) {
+        if ($candidate.unlock -eq 'The Gold Saucer' -and $candidate.quest -eq 'It Could Happen to You') {
+            $goldSaucer = $candidate
+            break
+        }
+    }
+
+    if ($goldSaucer) {
+        $goldSaucer.location = "X:9.6, Y:9.0:Ul'dah - Steps of Nald"
+        $goldSaucer.location_parts = @(
+            New-LocationPart -Place "Ul'dah - Steps of Nald" -Coords 'X:9.6, Y:9.0' -Href "/wiki/Ul%27dah_-_Steps_of_Nald"
+        )
+        $goldSaucer.information = "Talk to Well-heeled Youth in Ul'dah - Steps of Nald to start It Could Happen to You and unlock the Gold Saucer. If the quest is not available, you likely have not reached the level 15 MSQ step that opens this content yet."
+        $goldSaucer.information_html = (
+            'Talk to <a href="https://ffxiv.consolegameswiki.com/wiki/Well-heeled_Youth" target="_blank" rel="noopener noreferrer">Well-heeled Youth</a> in ' +
+            '<a href="https://ffxiv.consolegameswiki.com/wiki/Ul%27dah_-_Steps_of_Nald" target="_blank" rel="noopener noreferrer">Ul&#39;dah - Steps of Nald</a> ' +
+            '(X:9.6, Y:9.0) to start <a href="https://ffxiv.consolegameswiki.com/wiki/It_Could_Happen_to_You" target="_blank" rel="noopener noreferrer">It Could Happen to You</a> and unlock the Gold Saucer.<br>' +
+            'If the quest is not available, you likely have not reached the level 15 MSQ step that opens this content yet.<br>' +
+            '<a href="https://na.finalfantasyxiv.com/lodestone/playguide/contentsguide/goldsaucer/?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Official Gold Saucer guide</a>'
+        )
+        $goldSaucer.raw = @($goldSaucer.section, $goldSaucer.ilevel, $goldSaucer.unlock, $goldSaucer.type, $goldSaucer.quest, $goldSaucer.location, $goldSaucer.information) -join ' | '
+    }
+
+    $jumboEntry = $null
+    foreach ($candidate in $enhancedItems) {
+        if ($candidate.unlock -eq 'Jumbo Cactpot' -or $candidate.quest -eq 'Hitting the Cactpot') {
+            $jumboEntry = $candidate
+            break
+        }
+    }
+
+    if (-not $jumboEntry) {
+        $unlockParts = @(
+            New-TextPart -Text 'Jumbo Cactpot' -Href '/wiki/Jumbo_Cactpot'
+        )
+        $questParts = @(
+            New-TextPart -Text 'Hitting the Cactpot' -Href '/wiki/Hitting_the_Cactpot'
+        )
+        $locationParts = @(
+            New-LocationPart -Place 'The Gold Saucer' -Coords 'X:8.5, Y:5.9' -Href '/wiki/Gold_Saucer'
+        )
+        $information = 'Speak with Jumbo Cactpot Broker at the Gold Saucer after unlocking the Gold Saucer. Hitting the Cactpot has no steps; talking to the NPC accepts and completes the quasi-quest immediately, unlocking Jumbo Cactpot on the spot.'
+        $informationHtml = (
+            'Speak with <a href="https://ffxiv.consolegameswiki.com/wiki/Jumbo_Cactpot_Broker" target="_blank" rel="noopener noreferrer">Jumbo Cactpot Broker</a> at ' +
+            '<a href="https://ffxiv.consolegameswiki.com/wiki/Gold_Saucer" target="_blank" rel="noopener noreferrer">The Gold Saucer</a> (X:8.5, Y:5.9) after unlocking the Gold Saucer.<br>' +
+            '<a href="https://ffxiv.consolegameswiki.com/wiki/Hitting_the_Cactpot?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Hitting the Cactpot</a> has no steps; talking to the NPC accepts and completes the quasi-quest immediately, unlocking Jumbo Cactpot on the spot.<br>' +
+            'Prerequisite: complete <a href="https://ffxiv.consolegameswiki.com/wiki/It_Could_Happen_to_You" target="_blank" rel="noopener noreferrer">It Could Happen to You</a> first.<br>' +
+            '<a href="https://na.finalfantasyxiv.com/lodestone/playguide/contentsguide/goldsaucer/cactpot/?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Official Cactpot guide</a>'
+        )
+
+        $enhancedItems.Add([pscustomobject]@{
+            section = 'Level 1 - 50'
+            ilevel = '15'
+            unlock = 'Jumbo Cactpot'
+            unlock_parts = @($unlockParts)
+            type = 'Game Extra'
+            quest = 'Hitting the Cactpot'
+            quest_parts = @($questParts)
+            location = 'X:8.5, Y:5.9:The Gold Saucer'
+            location_parts = @($locationParts)
+            information = $information
+            information_html = $informationHtml
+            raw = @('Level 1 - 50', '15', 'Jumbo Cactpot', 'Game Extra', 'Hitting the Cactpot', 'X:8.5, Y:5.9:The Gold Saucer', $information) -join ' | '
+            id = 'Level 1 - 50|15|Jumbo Cactpot|Hitting the Cactpot'
+            primary = 'Hitting the Cactpot'
+            secondary_unlock = 'Jumbo Cactpot'
+        })
+    }
+
+    return $enhancedItems
+}
+
 function Build-DataSet {
     param([string]$HtmlContent)
 
@@ -415,6 +523,7 @@ Invoke-WebRequest -UseBasicParsing -Uri $SourceUrl | Select-Object -ExpandProper
 
 $htmlContent = Get-Content -Raw -Path $TempHtmlPath
 $items = Build-DataSet -HtmlContent $htmlContent
+$items = Apply-ManualEnhancements -Items $items
 $json = $items | ConvertTo-Json -Depth 6 -Compress
 
 $parentDir = Split-Path -Parent $JsonTarget

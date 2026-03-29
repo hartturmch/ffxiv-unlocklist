@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether Currents Guide</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #c9a95c;
+            --primary-hover: #e8cca4;
+            --bg-dark: #0f1319;
+            --bg-panel: rgba(25, 32, 43, 0.72);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 19, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090a0f 0%, #1a1b26 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(201, 169, 92, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .page-shell {
+            max-width: 1520px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 1rem 1.1rem 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(201, 169, 92, 0.05);
+        }
+
+        .sidebar-title {
+            color: var(--primary);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            padding: 0.75rem;
+            gap: 0.55rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.85rem 0.95rem;
+            border-radius: 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            border-color: rgba(201, 169, 92, 0.45);
+            background: linear-gradient(180deg, rgba(201, 169, 92, 0.14), rgba(201, 169, 92, 0.06));
+            color: #f7e4a4;
+        }
+
+        .sidebar-link-title {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link-copy {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .content {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .hero, .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            overflow: hidden;
+        }
+
+        .hero-copy {
+            padding: 1.35rem 1.5rem 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-copy p {
+            color: var(--text-muted);
+        }
+
+        .hero-copy .mini {
+            margin-top: 0.75rem;
+        }
+
+        .panel {
+            padding: 1.3rem 1.4rem;
+        }
+
+        h2 {
+            color: #f7e4a4;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1rem 1.05rem;
+        }
+
+        .card h3 {
+            color: #dbe6f3;
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        p + p {
+            margin-top: 0.65rem;
+        }
+
+        ul {
+            padding-left: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        li + li {
+            margin-top: 0.45rem;
+        }
+
+        a {
+            color: #f7e4a4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+        }
+
+        a:hover {
+            border-bottom-color: rgba(247, 228, 164, 0.85);
+        }
+
+        .mini {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.9rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            transition: width 0.35s ease;
+            box-shadow: 0 0 10px rgba(201, 169, 92, 0.45);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            align-items: center;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-box {
+            width: 100%;
+            min-width: 0;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: white;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-box-wrap .search-box {
+            padding-right: 40px;
+        }
+
+        select.search-box {
+            flex: initial;
+            width: auto;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        select.search-box option {
+            background: #1a1b26;
+            color: white;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(201, 169, 92, 0.18);
+        }
+
+        .search-clear-btn,
+        .btn {
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.06);
+            color: var(--text-main);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            font-size: 0.9rem;
+        }
+
+        .search-clear-btn[hidden] {
+            display: none;
+        }
+
+        .btn {
+            padding: 9px 14px;
+            font-size: 0.9rem;
+        }
+
+        .search-clear-btn:hover,
+        .btn:hover {
+            background: rgba(201, 169, 92, 0.1);
+            border-color: rgba(201, 169, 92, 0.32);
+            color: #f7e4a4;
+        }
+
+        .category {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: rgba(201, 169, 92, 0.05);
+            padding: 1.1rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .category-stats,
+        .subcategory-stats {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            background: rgba(0,0,0,0.22);
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
+
+        .subcategory {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.015);
+        }
+
+        .subcategory:first-child {
+            border-top: 0;
+        }
+
+        .subcategory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.95rem 1.2rem;
+            background: rgba(255,255,255,0.025);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+        }
+
+        .subcategory-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #d6e0ee;
+        }
+
+        .subcategory-meta {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .subcategory-header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .subcategory-toggle {
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            border-radius: 999px;
+        }
+
+        .checklist {
+            padding: 0;
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .checklist-item {
+            background: var(--bg-panel);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checklist-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .checklist-item.completed {
+            background: rgba(201, 169, 92, 0.03);
+            opacity: 0.6;
+        }
+
+        .checklist-item.completed::before {
+            transform: scaleY(1);
+            background: #10b981;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            padding-top: 3px;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .content-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .content-name {
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+            display: block;
+            font-size: 1.05rem;
+        }
+
+        .checklist-item.completed .content-name {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            text-decoration-color: rgba(255,255,255,0.2);
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            color: #ddd;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.type { background: rgba(79, 70, 229, 0.2); color: #a5b4fc; border: 1px solid rgba(79, 70, 229, 0.3); }
+        .badge.ilvl { background: rgba(201, 169, 92, 0.15); color: #fde68a; border: 1px solid rgba(201, 169, 92, 0.3); }
+        .badge.expansion { background: rgba(34, 197, 94, 0.14); color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.22); }
+        .badge.current { background: rgba(244, 114, 182, 0.14); color: #fbcfe8; border: 1px solid rgba(244, 114, 182, 0.22); }
+
+        .content-loc,
+        .content-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .content-name a,
+        .content-loc a,
+        .content-desc a {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+            box-shadow: inset 0 -1px 0 rgba(201, 169, 92, 0.14);
+            transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+            word-break: break-word;
+        }
+
+        .content-name a:hover,
+        .content-loc a:hover,
+        .content-desc a:hover {
+            color: #f7e4a4;
+            border-bottom-color: rgba(247, 228, 164, 0.8);
+            box-shadow: inset 0 -1px 0 rgba(247, 228, 164, 0.35);
+            background-color: rgba(201, 169, 92, 0.08);
+        }
+
+        .status-message {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .page-shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .grid { grid-template-columns: 1fr; }
+            .checklist { grid-template-columns: 1fr; }
+            .controls { align-items: stretch; }
+            select.search-box,
+            .search-box-wrap {
+                width: 100%;
+            }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-title">Guides</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Main Checklist</span>
+                    <span class="sidebar-link-copy">Unlock Checklist</span>
+                </a>
+                <a href="aether-currents-guide.html" class="sidebar-link active">
+                    <span class="sidebar-link-title">Aether Currents Guide</span>
+                    <span class="sidebar-link-copy">Unlock flying on expansion maps.</span>
+                </a>
+                <a href="weekly-content-guide.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Weekly Content Guide</span>
+                    <span class="sidebar-link-copy">Weekly Routine</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="hero">
+                <div class="hero-copy">
+                    <h1>Aether Currents Guide</h1>
+                    <p>Aether Currents are expansion-zone progression objectives tied to flying. Each zone has a fixed set of currents, usually split between field pickups and quest rewards. Once you collect the full set for a zone, flying becomes available there.</p>
+                    <p class="mini">Source: <a href="https://ffxiv.consolegameswiki.com/wiki/Aether_Currents" target="_blank" rel="noopener noreferrer">Aether Currents</a></p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>How To Clear A Zone Efficiently</h2>
+                <ul>
+                    <li>Do the MSQ in the zone first. Quest currents are often locked behind local quest progression.</li>
+                    <li>Use the field current entries to clean up the map once the local quest line has opened enough movement routes.</li>
+                    <li>Finish the remaining blue quests for quest currents after the MSQ branch is available.</li>
+                    <li>Use the site filters to search by zone name and hide completed entries so each zone shrinks as you finish it.</li>
+                </ul>
+            </section>
+
+            <section class="panel">
+                <h2>What Matters Practically</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Field currents</h3>
+                        <p>These are pure pickups. The important part is coordinates and route planning.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Quest currents</h3>
+                        <p>These depend on specific quests. The site preserves wiki links so you can open the original quest page directly when needed.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Zone grouping</h3>
+                        <p>The subcategory counter is the one to watch. If a zone says `7 / 9`, you know exactly how far that map is from flight.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Best usage pattern</h3>
+                        <p>Open one zone, finish it fully, collapse it, and move to the next. That keeps the checklist useful even as the dataset gets large.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Aether Currents Checklist</h2>
+                <div class="stack">
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span>Aether Progress</span>
+                            <span id="aether-progress-text">0 / 0 (0%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="aether-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="search-box-wrap">
+                            <input type="text" id="aether-search-input" class="search-box" placeholder="Search quests, zones, coordinates...">
+                            <button type="button" id="aether-clear-search-btn" class="search-clear-btn" hidden aria-label="Clear search">&times;</button>
+                        </div>
+                        <select id="aether-type-filter" class="search-box">
+                            <option value="">All types</option>
+                            <option value="Field">Field</option>
+                            <option value="Quest">Quest</option>
+                        </select>
+                        <button type="button" id="aether-toggle-completed-btn" class="btn">Show Completed</button>
+                        <button type="button" id="aether-expand-btn" class="btn">Expand All</button>
+                        <button type="button" id="aether-collapse-btn" class="btn">Collapse All</button>
+                    </div>
+
+                    <div id="aether-checklist-container">
+                        <div class="status-message">Loading Aether Currents...</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="aether-currents-guide-app.js"></script>
+</body>
+</html>
