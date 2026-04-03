@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Deliveries Guide</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #c9a95c;
+            --bg-panel: rgba(25, 32, 43, 0.72);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 19, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090a0f 0%, #1a1b26 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(201, 169, 92, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .page-shell {
+            max-width: 1520px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 1rem 1.1rem 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(201, 169, 92, 0.05);
+        }
+
+        .sidebar-title {
+            color: var(--primary);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            padding: 0.75rem;
+            gap: 0.55rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.85rem 0.95rem;
+            border-radius: 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            border-color: rgba(201, 169, 92, 0.45);
+            background: linear-gradient(180deg, rgba(201, 169, 92, 0.14), rgba(201, 169, 92, 0.06));
+            color: #f7e4a4;
+        }
+
+        .sidebar-link-title {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link-copy {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .content {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .hero, .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-copy {
+            padding: 1.35rem 1.5rem 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-copy p {
+            color: var(--text-muted);
+        }
+
+        .hero-copy .mini {
+            margin-top: 0.75rem;
+        }
+
+        .panel {
+            padding: 1.3rem 1.4rem;
+        }
+
+        h2 {
+            color: #f7e4a4;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1rem 1.05rem;
+        }
+
+        .card h3 {
+            color: #dbe6f3;
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        p + p {
+            margin-top: 0.65rem;
+        }
+
+        ul {
+            padding-left: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        li + li {
+            margin-top: 0.45rem;
+        }
+
+        a {
+            color: #f7e4a4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(201, 169, 92, 0.38);
+        }
+
+        a:hover {
+            border-bottom-color: rgba(247, 228, 164, 0.85);
+        }
+
+        .mini {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .client-list {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .client-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 0.95rem 1rem;
+        }
+
+        .client-item strong {
+            color: #dbe6f3;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .page-shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-title">Guides</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Main Checklist</span>
+                    <span class="sidebar-link-copy">Unlock Checklist</span>
+                </a>
+                <a href="aether-currents-guide.html" class="sidebar-link">
+                    <span class="sidebar-link-title">Aether Currents Guide</span>
+                    <span class="sidebar-link-copy">Unlock flying on expansion maps.</span>
+                </a>
+                <a href="weekly-content-guide.html" class="sidebar-link active">
+                    <span class="sidebar-link-title">Weekly Content Guide</span>
+                    <span class="sidebar-link-copy">Weekly Routine</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="hero">
+                <div class="hero-copy">
+                    <h1>Custom Deliveries Guide</h1>
+                    <p>Custom Deliveries are weekly turn-ins for crafters and gatherers. They give scrips, gil, EXP, and NPC satisfaction progress. The main weekly decision is where to spend your 12 allowances and which client you want to level or farm.</p>
+                    <p class="mini">Source: <a href="https://ffxiv.consolegameswiki.com/wiki/Custom_Deliveries" target="_blank" rel="noopener noreferrer">Custom Deliveries</a></p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Weekly Rules</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Allowance cap</h3>
+                        <p>You get 12 total delivery allowances per week.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Per-client cap</h3>
+                        <p>You can only turn in 6 deliveries per client each week.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Reset</h3>
+                        <p>Allowances reset weekly, so this belongs in your weekly routine instead of the one-time unlock list only.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Best use</h3>
+                        <p>Pick one or two clients you care about and spend your allowances there instead of spreading progress too thin.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>System Unlock Path</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Base collectables</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/Inscrutable_Tastes" target="_blank" rel="noopener noreferrer">Inscrutable Tastes</a> unlocks Collectables.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Extra systems</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/No_Longer_a_Collectable" target="_blank" rel="noopener noreferrer">No Longer a Collectable</a> unlocks Aetherial Reduction.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Idyllshire suite</h3>
+                        <p><a href="https://ffxiv.consolegameswiki.com/wiki/Go_West,_Craftsman" target="_blank" rel="noopener noreferrer">Go West, Craftsman</a> unlocks the Idyllshire appraiser, scrip exchange, and vendor.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Later expansion suites</h3>
+                        <p>Rhalgr's Reach, Eulmore, Radz-at-Han, and Solution Nine each have their own unlock conversation quest.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Client Unlocks</h2>
+                <div class="client-list">
+                    <div class="client-item"><strong>Zhloe Aliapoh:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/Arms_Wide_Open" target="_blank" rel="noopener noreferrer">Arms Wide Open</a></div>
+                    <div class="client-item"><strong>M'naago:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/None_Forgotten,_None_Forsaken" target="_blank" rel="noopener noreferrer">None Forgotten, None Forsaken</a></div>
+                    <div class="client-item"><strong>Kurenai:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/The_Seaweed_Is_Always_Greener" target="_blank" rel="noopener noreferrer">The Seaweed Is Always Greener</a></div>
+                    <div class="client-item"><strong>Adkiragh:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/Between_a_Rock_and_the_Hard_Place" target="_blank" rel="noopener noreferrer">Between a Rock and the Hard Place</a></div>
+                    <div class="client-item"><strong>Kai-Shirr:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/Oh,_Beehive_Yourself" target="_blank" rel="noopener noreferrer">Oh, Beehive Yourself</a></div>
+                    <div class="client-item"><strong>Ehll Tou:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/O_Crafter,_My_Crafter" target="_blank" rel="noopener noreferrer">O Crafter, My Crafter</a></div>
+                    <div class="client-item"><strong>Count Charlemend:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/You_Can_Count_on_It" target="_blank" rel="noopener noreferrer">You Can Count on It</a></div>
+                    <div class="client-item"><strong>Ameliance:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/Of_Mothers_and_Merchants" target="_blank" rel="noopener noreferrer">Of Mothers and Merchants</a></div>
+                    <div class="client-item"><strong>Anden:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/That%27s_So_Anden" target="_blank" rel="noopener noreferrer">That's So Anden</a></div>
+                    <div class="client-item"><strong>Margrat:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/A_Request_of_One%27s_Own" target="_blank" rel="noopener noreferrer">A Request of One's Own</a></div>
+                    <div class="client-item"><strong>Nitowikwe:</strong> <a href="https://ffxiv.consolegameswiki.com/wiki/Laying_New_Tracks" target="_blank" rel="noopener noreferrer">Laying New Tracks</a></div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>What To Track Weekly</h2>
+                <ul>
+                    <li>Spend the 12 allowances you care about after reset.</li>
+                    <li>Check whether you are pushing satisfaction on a specific client or farming scrips on a capped one.</li>
+                    <li>Keep one client focus if you want glamours, stories, or reward milestones faster.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
