@@ -8,6 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $WikiBaseUrl = 'https://ffxiv.consolegameswiki.com'
+$QuestPrerequisitesPath = 'data/quest-prerequisites.json'
 
 function Normalize-Whitespace {
     param([AllowNull()][string]$Text)
@@ -452,6 +453,51 @@ function Apply-ManualEnhancements {
         })
     }
 
+    $fashionReportEntry = $null
+    foreach ($candidate in $enhancedItems) {
+        if ($candidate.unlock -eq 'Fashion Report' -or $candidate.quest -eq 'Passion for Fashion') {
+            $fashionReportEntry = $candidate
+            break
+        }
+    }
+
+    if (-not $fashionReportEntry) {
+        $unlockParts = @(
+            New-TextPart -Text 'Fashion Report' -Href '/wiki/Fashion_Report'
+        )
+        $questParts = @(
+            New-TextPart -Text 'Passion for Fashion' -Href '/wiki/Passion_for_Fashion'
+        )
+        $locationParts = @(
+            New-LocationPart -Place 'The Gold Saucer' -Coords 'X:4.8, Y:6.1' -Href '/wiki/Gold_Saucer'
+        )
+        $information = 'Requires It Could Happen to You first. Speak with Lewena in the Gold Saucer to unlock the weekly Fashion Report with Masked Rose.'
+        $informationHtml = (
+            'Requires <a href="https://ffxiv.consolegameswiki.com/wiki/It_Could_Happen_to_You" target="_blank" rel="noopener noreferrer">It Could Happen to You</a> first. ' +
+            'Speak with <a href="https://ffxiv.consolegameswiki.com/wiki/Lewena" target="_blank" rel="noopener noreferrer">Lewena</a> in the Gold Saucer to unlock the weekly ' +
+            '<a href="https://ffxiv.consolegameswiki.com/wiki/Fashion_Report" target="_blank" rel="noopener noreferrer">Fashion Report</a> with ' +
+            '<a href="https://ffxiv.consolegameswiki.com/wiki/Masked_Rose" target="_blank" rel="noopener noreferrer">Masked Rose</a>.'
+        )
+
+        $enhancedItems.Add([pscustomobject]@{
+            section = 'Level 1 - 50'
+            ilevel = '15'
+            unlock = 'Fashion Report'
+            unlock_parts = @($unlockParts)
+            type = 'Game Extra'
+            quest = 'Passion for Fashion'
+            quest_parts = @($questParts)
+            location = 'X:4.8, Y:6.1:The Gold Saucer'
+            location_parts = @($locationParts)
+            information = $information
+            information_html = $informationHtml
+            raw = @('Level 1 - 50', '15', 'Fashion Report', 'Game Extra', 'Passion for Fashion', 'X:4.8, Y:6.1:The Gold Saucer', $information) -join ' | '
+            id = 'Level 1 - 50|15|Fashion Report|Passion for Fashion'
+            primary = 'Passion for Fashion'
+            secondary_unlock = 'Fashion Report'
+        })
+    }
+
     $alexanderChainEntries = @(
         @{
             quest = 'Steel and Steam'
@@ -651,11 +697,340 @@ function Apply-ManualEnhancements {
         })
     }
 
+    $omegaChainEntries = @(
+        @{
+            section = 'Level 70'
+            ilevel = '295'
+            unlock = 'Deltascape V1.0'
+            unlockHref = '/wiki/Deltascape_V1.0'
+            type = 'Raid'
+            quest = 'Into the Deltascape'
+            questHref = '/wiki/Into_the_Deltascape'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:17.3, Y:18.9'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'The Hunt for Omega'
+            previousHref = '/wiki/The_Hunt_for_Omega'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '295'
+            unlock = 'Deltascape V2.0'
+            unlockHref = '/wiki/Deltascape_V2.0'
+            type = 'Raid'
+            quest = 'A Catastrophe Waiting'
+            questHref = '/wiki/A_Catastrophe_Waiting'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:17.3, Y:18.9'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'Into the Deltascape'
+            previousHref = '/wiki/Into_the_Deltascape'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '295'
+            unlock = 'Deltascape V3.0'
+            unlockHref = '/wiki/Deltascape_V3.0'
+            type = 'Raid'
+            quest = 'The Croak Queen'
+            questHref = '/wiki/The_Croak_Queen'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:17.3, Y:18.9'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'A Catastrophe Waiting'
+            previousHref = '/wiki/A_Catastrophe_Waiting'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '295'
+            unlock = 'Deltascape V4.0'
+            unlockHref = '/wiki/Deltascape_V4.0'
+            type = 'Raid'
+            quest = 'A Void at All Costs'
+            questHref = '/wiki/A_Void_at_All_Costs'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:17.3, Y:18.9'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'The Croak Queen'
+            previousHref = '/wiki/The_Croak_Queen'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '295'
+            unlock = 'Delta Force'
+            unlockHref = '/wiki/Delta_Force'
+            type = 'Raid'
+            quest = 'The Anomaly'
+            questHref = '/wiki/The_Anomaly'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Fringes'
+            coords = 'X:30.7, Y:31.7'
+            placeHref = '/wiki/The_Fringes'
+            previous = 'A Void at All Costs'
+            previousHref = '/wiki/A_Void_at_All_Costs'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '325'
+            unlock = 'Sigmascape V1.0'
+            unlockHref = '/wiki/Sigmascape_V1.0'
+            type = 'Raid'
+            quest = 'No Slowing Down'
+            questHref = '/wiki/No_Slowing_Down'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:19.7, Y:25.1'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'Return to the Rift'
+            previousHref = '/wiki/Return_to_the_Rift'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '325'
+            unlock = 'Sigmascape V2.0'
+            unlockHref = '/wiki/Sigmascape_V2.0'
+            type = 'Raid'
+            quest = 'An Unfinished Masterpiece'
+            questHref = '/wiki/An_Unfinished_Masterpiece'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:19.7, Y:25.1'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'No Slowing Down'
+            previousHref = '/wiki/No_Slowing_Down'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '325'
+            unlock = 'Sigmascape V3.0'
+            unlockHref = '/wiki/Sigmascape_V3.0'
+            type = 'Raid'
+            quest = "Won't Let You Pass"
+            questHref = '/wiki/Won%27t_Let_You_Pass'
+            giver = 'Wedge'
+            giverHref = '/wiki/Wedge'
+            place = 'The Fringes'
+            coords = 'X:30.7, Y:31.8'
+            placeHref = '/wiki/The_Fringes'
+            previous = 'An Unfinished Masterpiece'
+            previousHref = '/wiki/An_Unfinished_Masterpiece'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '325'
+            unlock = 'Sigmascape V4.0'
+            unlockHref = '/wiki/Sigmascape_V4.0'
+            type = 'Raid'
+            quest = 'Test World of Ruin'
+            questHref = '/wiki/Test_World_of_Ruin'
+            giver = 'Nero tol Scaeva'
+            giverHref = '/wiki/Nero_tol_Scaeva'
+            place = 'The Interdimensional Rift'
+            coords = 'X:19.7, Y:25.0'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = "Won't Let You Pass"
+            previousHref = '/wiki/Won%27t_Let_You_Pass'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '355'
+            unlock = 'Alphascape V2.0'
+            unlockHref = '/wiki/Alphascape_V2.0'
+            type = 'Raid'
+            quest = 'And Like Fire Was His Mane'
+            questHref = '/wiki/And_Like_Fire_Was_His_Mane'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:20.7, Y:24.6'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'In the Beginning, There Was Chaos'
+            previousHref = '/wiki/In_the_Beginning,_There_Was_Chaos'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '355'
+            unlock = 'Alphascape V3.0 / Alphascape V4.0'
+            unlockParts = @(
+                @{ text = 'Alphascape V3.0'; href = '/wiki/Alphascape_V3.0' },
+                @{ text = 'Alphascape V4.0'; href = '/wiki/Alphascape_V4.0' }
+            )
+            type = 'Raid'
+            quest = 'In the End, There Is Omega'
+            questHref = '/wiki/In_the_End,_There_Is_Omega'
+            giver = 'Cid'
+            giverHref = '/wiki/Cid'
+            place = 'The Interdimensional Rift'
+            coords = 'X:20.7, Y:24.6'
+            placeHref = '/wiki/The_Interdimensional_Rift'
+            previous = 'And Like Fire Was His Mane'
+            previousHref = '/wiki/And_Like_Fire_Was_His_Mane'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 70'
+            ilevel = '355'
+            unlock = 'Omega (New Game+)'
+            unlockHref = '/wiki/Omega_(New_Game%2B)'
+            type = 'Raid'
+            quest = 'To Kweh under Distant Skies'
+            questHref = '/wiki/To_Kweh_under_Distant_Skies'
+            giver = 'Biggs'
+            giverHref = '/wiki/Biggs'
+            place = 'The Fringes'
+            coords = 'X:30.7, Y:31.9'
+            placeHref = '/wiki/The_Fringes'
+            previous = 'In the End, There Is Omega'
+            previousHref = '/wiki/In_the_End,_There_Is_Omega'
+            line = 'Omega Quests'
+            lineHref = '/wiki/Omega_Quests'
+        },
+        @{
+            section = 'Level 90'
+            ilevel = '90'
+            unlock = 'Omega: Beyond the Rift'
+            unlockHref = '/wiki/Omega:_Beyond_the_Rift_Quests'
+            type = 'Side Quests'
+            quest = 'A Heartless Hypothesis'
+            questHref = '/wiki/A_Heartless_Hypothesis'
+            giver = 'Bespectacled Technician'
+            giverHref = '/wiki/Bespectacled_Technician'
+            place = 'Old Sharlayan'
+            coords = 'X:10.9, Y:14.3'
+            placeHref = '/wiki/Old_Sharlayan'
+            previous = 'To Kweh under Distant Skies'
+            previousHref = '/wiki/To_Kweh_under_Distant_Skies'
+            line = 'Omega: Beyond the Rift Quests'
+            lineHref = '/wiki/Omega:_Beyond_the_Rift_Quests'
+        },
+        @{
+            section = 'Level 90'
+            ilevel = '90'
+            unlock = 'Omega: Beyond the Rift (New Game+)'
+            unlockHref = '/wiki/Omega:_Beyond_the_Rift_(New_Game%2B)'
+            type = 'Side Quests'
+            quest = 'Good-bye, ε̆│̆│Δ'
+            questHref = '/wiki/Goodbye,_%CE%B5%CC%86%E2%94%82%CC%86%E2%94%82%CE%94'
+            giver = 'Omega'
+            giverHref = '/wiki/Omega'
+            place = 'Radz-at-Han'
+            coords = 'X:10.0, Y:13.5'
+            placeHref = '/wiki/Radz-at-Han'
+            previous = 'A Heartless Hypothesis'
+            previousHref = '/wiki/A_Heartless_Hypothesis'
+            line = 'Omega: Beyond the Rift Quests'
+            lineHref = '/wiki/Omega:_Beyond_the_Rift_Quests'
+        }
+    )
+
+    foreach ($entry in $omegaChainEntries) {
+        $existingOmegaEntry = $null
+        foreach ($candidate in $enhancedItems) {
+            if ($candidate.quest -eq $entry.quest -or $candidate.unlock -eq $entry.unlock) {
+                $existingOmegaEntry = $candidate
+                break
+            }
+        }
+
+        if ($existingOmegaEntry) {
+            continue
+        }
+
+        $unlockParts = @()
+        if ($entry.ContainsKey('unlockParts') -and $entry.unlockParts) {
+            foreach ($part in $entry.unlockParts) {
+                $unlockParts += New-TextPart -Text $part.text -Href $part.href
+            }
+        }
+        else {
+            $unlockParts = @(
+                New-TextPart -Text $entry.unlock -Href $entry.unlockHref
+            )
+        }
+
+        $questParts = @(
+            New-TextPart -Text $entry.quest -Href $entry.questHref
+        )
+        $locationParts = @(
+            New-LocationPart -Place $entry.place -Coords $entry.coords -Href $entry.placeHref
+        )
+
+        $unlockHtml = Convert-TextPartsToSafeHtml -Parts $unlockParts
+        $information = "Talk to $($entry.giver) in $($entry.place) after $($entry.previous) to continue $($entry.line) and unlock $($entry.unlock)."
+        $informationHtml = (
+            'Talk to <a href="' + (Convert-WikiHref $entry.giverHref) + '" target="_blank" rel="noopener noreferrer">' + $entry.giver + '</a> in ' +
+            '<a href="' + (Convert-WikiHref $entry.placeHref) + '" target="_blank" rel="noopener noreferrer">' + $entry.place + '</a> ' +
+            "($($entry.coords)) after " +
+            '<a href="' + (Convert-WikiHref $entry.previousHref) + '" target="_blank" rel="noopener noreferrer">' + $entry.previous + '</a> ' +
+            'to continue <a href="' + (Convert-WikiHref $entry.lineHref) + '" target="_blank" rel="noopener noreferrer">' + $entry.line + '</a> and unlock ' +
+            $unlockHtml +
+            '.'
+        )
+
+        $enhancedItems.Add([pscustomobject]@{
+            section = $entry.section
+            ilevel = $entry.ilevel
+            unlock = $entry.unlock
+            unlock_parts = @($unlockParts)
+            type = $entry.type
+            quest = $entry.quest
+            quest_parts = @($questParts)
+            location = "$($entry.coords):$($entry.place)"
+            location_parts = @($locationParts)
+            information = $information
+            information_html = $informationHtml
+            raw = @($entry.section, $entry.ilevel, $entry.unlock, $entry.type, $entry.quest, "$($entry.coords):$($entry.place)", $information) -join ' | '
+            id = "$($entry.section)|$($entry.ilevel)|$($entry.unlock)|$($entry.quest)"
+            primary = $entry.quest
+            secondary_unlock = $entry.unlock
+        })
+    }
+
+    $misparsedQuestTypes = @(
+        'Game Mechanic',
+        'Deep Dungeon',
+        'Housing',
+        'Trial',
+        'Allied Society Quests'
+    )
+
     for ($i = 0; $i -lt $enhancedItems.Count; $i++) {
         $candidate = $enhancedItems[$i]
 
         if (
-            $candidate.quest -ne 'Game Mechanic' -or
+            -not ($misparsedQuestTypes -contains $candidate.quest) -or
             $candidate.unlock -ne '-' -or
             -not $candidate.type -or
             -not $candidate.location
@@ -663,6 +1038,7 @@ function Apply-ManualEnhancements {
             continue
         }
 
+        $normalizedType = $candidate.quest
         $questTitle = $candidate.location
         $unlockTitle = $candidate.type
         $locationText = $candidate.information
@@ -709,7 +1085,7 @@ function Apply-ManualEnhancements {
         $candidate.unlock_parts = @(
             New-TextPart -Text $unlockTitle -Href (Convert-TitleToWikiHref $unlockTitle)
         )
-        $candidate.type = 'Game Mechanic'
+        $candidate.type = $normalizedType
         $candidate.quest = $questTitle
         $candidate.quest_parts = @(
             New-TextPart -Text $questTitle -Href $questHref
@@ -1455,6 +1831,153 @@ function Apply-ManualEnhancements {
             primary = $entry.quest
             secondary_unlock = $entry.unlock
         })
+    }
+
+    if (Test-Path $QuestPrerequisitesPath) {
+        $questPrerequisites = Get-Content -Raw -Path $QuestPrerequisitesPath | ConvertFrom-Json
+
+        foreach ($dependency in @($questPrerequisites)) {
+            if (-not $dependency.quest -or -not $dependency.previous_quest) {
+                continue
+            }
+
+            $currentItem = $null
+            foreach ($candidate in $enhancedItems) {
+                if ($candidate.quest -eq $dependency.quest) {
+                    $currentItem = $candidate
+                    break
+                }
+            }
+
+            if ($currentItem) {
+                $requiresText = "Requires $($dependency.previous_quest). This quest only appears after you complete it."
+                $requiresHtml = 'Requires <a href="' + (Convert-WikiHref $dependency.previous_quest_href) + '" target="_blank" rel="noopener noreferrer">' + $dependency.previous_quest + '</a>. This quest only appears after you complete it.'
+
+                if ($currentItem.information -match ('^Requires\s+' + [regex]::Escape($dependency.previous_quest) + '\.')) {
+                    $currentItem.information = [regex]::Replace(
+                        $currentItem.information,
+                        '^Requires\s+' + [regex]::Escape($dependency.previous_quest) + '\.',
+                        [System.Text.RegularExpressions.MatchEvaluator]{ param($m) "Requires $($dependency.previous_quest). This quest only appears after you complete it." },
+                        1
+                    )
+                    $remainingHtml = $currentItem.information_html -replace '^(?is)Requires\b.*?</a>\.\s*', ''
+                    $currentItem.information_html = if ($remainingHtml) {
+                        "$requiresHtml $remainingHtml".Trim()
+                    }
+                    else {
+                        $requiresHtml
+                    }
+                }
+                elseif ($currentItem.information -notmatch [regex]::Escape($requiresText) -and $currentItem.information -notmatch [regex]::Escape($dependency.previous_quest)) {
+                    $currentItem.information = if ($currentItem.information) {
+                        "$requiresText $($currentItem.information)".Trim()
+                    }
+                    else {
+                        $requiresText
+                    }
+
+                    $currentItem.information_html = if ($currentItem.information_html) {
+                        "$requiresHtml $($currentItem.information_html)".Trim()
+                    }
+                    else {
+                        $requiresHtml
+                    }
+                }
+
+                if ($currentItem.information) {
+                    $currentItem.raw = @(
+                        $currentItem.section,
+                        $currentItem.ilevel,
+                        $currentItem.unlock,
+                        $currentItem.type,
+                        $currentItem.quest,
+                        $currentItem.location,
+                        $currentItem.information
+                    ) -join ' | '
+                }
+            }
+
+            if ($dependency.previous_exists) {
+                continue
+            }
+
+            $existingPrereq = $null
+            foreach ($candidate in $enhancedItems) {
+                if ($candidate.quest -eq $dependency.previous_quest) {
+                    $existingPrereq = $candidate
+                    break
+                }
+            }
+
+            if ($existingPrereq) {
+                continue
+            }
+
+            $unlockParts = @(
+                New-TextPart -Text $dependency.quest -Href $dependency.quest_href
+            )
+            $questParts = @(
+                New-TextPart -Text $dependency.previous_quest -Href $dependency.previous_quest_href
+            )
+
+            $locationParts = @()
+            $locationText = ''
+            if ($dependency.previous_place -and $dependency.previous_coords) {
+                $locationParts = @(
+                    New-LocationPart -Place $dependency.previous_place -Coords $dependency.previous_coords -Href $dependency.previous_place_href
+                )
+                $locationText = "$($dependency.previous_coords):$($dependency.previous_place)"
+            }
+            elseif ($dependency.previous_place) {
+                $locationParts = @(
+                    [pscustomobject]@{
+                        place = $dependency.previous_place
+                        coords = ''
+                        display = $dependency.previous_place
+                        url = Convert-WikiHref $dependency.previous_place_href
+                    }
+                )
+                $locationText = $dependency.previous_place
+            }
+
+            $infoText = "Complete this quest so $($dependency.quest) appears."
+            if ($dependency.previous_giver -and $dependency.previous_place) {
+                $infoText = "Complete this quest with $($dependency.previous_giver) in $($dependency.previous_place) so $($dependency.quest) appears."
+            }
+
+            $infoHtml = 'Complete this quest'
+            if ($dependency.previous_giver) {
+                $infoHtml += ' with <a href="' + (Convert-WikiHref $dependency.previous_giver_href) + '" target="_blank" rel="noopener noreferrer">' + $dependency.previous_giver + '</a>'
+            }
+            if ($dependency.previous_place) {
+                $infoHtml += ' in <a href="' + (Convert-WikiHref $dependency.previous_place_href) + '" target="_blank" rel="noopener noreferrer">' + $dependency.previous_place + '</a>'
+                if ($dependency.previous_coords) {
+                    $infoHtml += " ($($dependency.previous_coords))"
+                }
+            }
+            $infoHtml += ' so <a href="' + (Convert-WikiHref $dependency.quest_href) + '" target="_blank" rel="noopener noreferrer">' + $dependency.quest + '</a> appears.'
+
+            $section = if ($dependency.previous_section) { $dependency.previous_section } else { $dependency.section }
+            $ilevel = if ($dependency.previous_level) { $dependency.previous_level } else { $dependency.ilevel }
+
+            $enhancedItems.Add([pscustomobject]@{
+                section = $section
+                ilevel = $ilevel
+                unlock = $dependency.quest
+                unlock_parts = @($unlockParts)
+                type = 'Quest Prerequisite'
+                quest = $dependency.previous_quest
+                quest_parts = @($questParts)
+                location = $locationText
+                location_parts = @($locationParts)
+                information = $infoText
+                information_html = $infoHtml
+                raw = @($section, $ilevel, $dependency.quest, 'Quest Prerequisite', $dependency.previous_quest, $locationText, $infoText) -join ' | '
+                id = "$section|$ilevel|$($dependency.quest)|$($dependency.previous_quest)"
+                primary = $dependency.previous_quest
+                secondary_unlock = $dependency.quest
+            })
+        }
     }
 
     return $enhancedItems
