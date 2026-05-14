@@ -1,0 +1,6 @@
+.ssh/
+
+# Dalamud plugin build output
+dalamud-plugin/**/bin/
+dalamud-plugin/**/obj/
+dalamud-plugin/dist/VaelarisUnlockList-*/

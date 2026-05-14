@@ -1,0 +1,13 @@
+{
+  "Author": "Stan",
+  "Name": "Unlock List",
+  "Punchline": "Track FFXIV unlockables and open their map locations.",
+  "Description": "Shows unlockable content, marks completed quest-backed entries when possible, keeps manual state for unsupported entries, and opens map flags for known locations. Command: /vunlock",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "unlock",
+    "checklist",
+    "map",
+    "guide"
+  ]
+}
