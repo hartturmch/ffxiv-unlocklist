@@ -1,20 +1,19 @@
 # Unlock List Dalamud Plugin
 
-Prototype Dalamud plugin for the FFXIV unlockables data used by this site.
+Dalamud plugin for the FFXIV unlockables data used by this repository.
 
 ## What is included
 
 - `VaelarisUnlockList/` - Dalamud plugin project targeting API 15 through `Dalamud.NET.Sdk/15.0.0`.
 - `tools/build-plugin-data.mjs` - exporter that reads the site JSON files and writes `VaelarisUnlockList/Data/unlockables.json`.
-- `VaelarisUnlockList/Data/unlockables.json` - generated plugin dataset.
+- `VaelarisUnlockList/Data/unlockables.json` - generated plugin dataset with resolved game IDs where known.
 - `VaelarisUnlockList/images/icon.png` - 512x512 plugin icon asset.
+- `dist/pluginmaster.json` - custom Dalamud repository manifest.
 
 ## Build prerequisites
 
 - XIVLauncher and Dalamud installed and run at least once.
 - .NET SDK 10.x for Dalamud API 15.
-
-This machine currently has .NET runtimes only, so `dotnet build` cannot run here until the SDK is installed.
 
 ## Regenerate data
 
@@ -29,6 +28,16 @@ node .\dalamud-plugin\tools\build-plugin-data.mjs
 ```powershell
 dotnet build .\dalamud-plugin\VaelarisUnlockList\VaelarisUnlockList.csproj
 ```
+
+## Install from GitHub
+
+Add this URL to Dalamud Custom Plugin Repositories:
+
+```text
+https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/pluginmaster.json
+```
+
+Then install **Unlock List** from the Dalamud Plugin Installer.
 
 ## Package release
 
@@ -51,7 +60,7 @@ Then add the hosted `pluginmaster.json` URL to Dalamud Custom Plugin Repositorie
 Use this when `dalamud-plugin/dist` will be committed to a GitHub repo.
 
 ```powershell
-.\dalamud-plugin\tools\package-github.ps1 -Owner "YOUR_GITHUB_USER" -Repo "ffxiv-unlocklist" -Branch "master"
+.\dalamud-plugin\tools\package-github.ps1 -Owner "hartturmch" -Repo "ffxiv-unlocklist" -Branch "main"
 ```
 
 Commit and push:
@@ -63,20 +72,19 @@ Commit and push:
 Dalamud repository URL:
 
 ```text
-https://raw.githubusercontent.com/YOUR_GITHUB_USER/ffxiv-unlocklist/master/dalamud-plugin/dist/pluginmaster.json
+https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/pluginmaster.json
 ```
 
 ## In-game
 
-The plugin adds `/vunlock` and a main UI button in Dalamud. The first version can:
+The plugin adds `/vunlock` and a main UI button in Dalamud. It can:
 
 - load the generated unlockables dataset;
-- resolve quest names to Lumina quest row IDs at runtime;
+- use generated and runtime-resolved Lumina row IDs;
 - mark quest-backed entries complete with `IUnlockState.IsQuestCompleted`;
+- mark aether current entries complete where the aether current ID is known;
 - keep manual completion state for entries that cannot be auto-detected yet;
-- resolve places to territory/map IDs where possible;
+- filter by search text, category, map, current zone, completion visibility, and status;
 - open the in-game map with a flag for entries that have coordinates and a resolvable map.
 
-The next data improvement is to add explicit `questId`, `territoryTypeId`, `mapId`, and `aetherCurrentId` fields to the exporter so the plugin no longer relies on name matching.
-
-For a public/custom plugin repository, host `VaelarisUnlockList/images/icon.png` and set the generated repository entry's `IconUrl` to the raw PNG URL. Local dev plugin paths do not use a public `IconUrl`.
+Some unlocks still show as **Needs Manual Check** when the game does not expose a reliable completion state or the ID is not resolved yet.
