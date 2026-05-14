@@ -14,10 +14,10 @@
                  "guide"
              ],
     "DalamudApiLevel":  15,
-    "DownloadLinkInstall":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/master/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
-    "DownloadLinkUpdate":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/master/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
-    "DownloadLinkTesting":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/master/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
-    "IconUrl":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/master/dalamud-plugin/dist/icon.png",
+    "DownloadLinkInstall":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
+    "DownloadLinkUpdate":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
+    "DownloadLinkTesting":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.0.0.zip",
+    "IconUrl":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/icon.png",
     "IsHide":  false,
     "IsTestingExclusive":  false
 }]
