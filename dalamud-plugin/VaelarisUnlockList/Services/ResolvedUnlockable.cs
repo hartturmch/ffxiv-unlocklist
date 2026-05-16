@@ -22,6 +22,12 @@ public sealed class ResolvedUnlockable
 
     public bool IsAutoTracked { get; init; }
 
+    public bool IsAvailable { get; init; } = true;
+
+    public IReadOnlyList<string> RequiredQuestNames { get; init; } = [];
+
+    public IReadOnlyList<string> MissingRequirementNames { get; init; } = [];
+
     public string StatusLabel => IsComplete ? "Complete" : IsAutoTracked ? "Open" : "Manual";
 
     public bool CanOpenMap => TerritoryTypeId is not null && MapId is not null && MapLocation?.X is not null && MapLocation.Y is not null;

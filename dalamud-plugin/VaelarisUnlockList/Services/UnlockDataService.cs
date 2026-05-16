@@ -88,6 +88,10 @@ public sealed class UnlockDataService
         var isComplete = IsManualComplete(item.Id)
             || questRowIds.Any(IsQuestComplete)
             || (aetherCurrentRowId is not null && IsAetherCurrentComplete(aetherCurrentRowId.Value));
+        var requiredQuestNames = ExpandAlternativeRequirements(ExtractRequirements(item.Instructions));
+        var requiredQuestIds = ResolveQuestRowIds(requiredQuestNames);
+        var hasKnownRequirements = requiredQuestIds.Count > 0;
+        var isAvailable = isComplete || !hasKnownRequirements || requiredQuestIds.Any(IsQuestComplete);
         var mapTarget = ResolveMapTarget(item, gameData);
 
         return new ResolvedUnlockable
@@ -101,6 +105,9 @@ public sealed class UnlockDataService
             MapLocation = mapTarget?.Location,
             IsComplete = isComplete,
             IsAutoTracked = autoTracked,
+            IsAvailable = isAvailable,
+            RequiredQuestNames = requiredQuestNames,
+            MissingRequirementNames = isAvailable ? [] : requiredQuestNames,
         };
     }
 
@@ -507,6 +514,34 @@ public sealed class UnlockDataService
             .ToList();
     }
 
+    private List<uint> ResolveQuestRowIds(IEnumerable<string> questNames)
+    {
+        var rowIds = new List<uint>();
+        foreach (var questName in ExpandQuestNameCandidates(questNames))
+        {
+            if (IsGenericQuestName(questName))
+            {
+                continue;
+            }
+
+            if (questIdsByName.TryGetValue(NormalizeKey(questName), out var rowId))
+            {
+                rowIds.Add(rowId);
+            }
+
+            var looseKey = NormalizeLooseKey(questName);
+            if (questTargetsByLooseName.TryGetValue(looseKey, out var exactTargets))
+            {
+                rowIds.AddRange(exactTargets.Select(target => target.RowId));
+            }
+        }
+
+        return rowIds
+            .Where(rowId => rowId != 0)
+            .Distinct()
+            .ToList();
+    }
+
     private uint? ResolveAetherCurrentRowId(UnlockableEntry item, GameDataIds gameData)
     {
         if (!string.Equals(item.Source, "aether-currents", StringComparison.OrdinalIgnoreCase))
@@ -865,6 +900,80 @@ public sealed class UnlockDataService
 
         cleaned = Regex.Replace(cleaned, @"\s+", " ");
         return cleaned;
+    }
+
+    private List<string> ExpandAlternativeRequirements(List<string> requirements)
+    {
+        var results = new List<string>();
+        foreach (var requirement in requirements)
+        {
+            var alternatives = FindAlternativeRequirementGroup(requirement);
+            foreach (var alternative in alternatives.Count > 0 ? alternatives : [requirement])
+            {
+                if (!results.Contains(alternative, StringComparer.OrdinalIgnoreCase))
+                {
+                    results.Add(alternative);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    private List<string> FindAlternativeRequirementGroup(string requirement)
+    {
+        foreach (var item in dataset.Items)
+        {
+            if (item.QuestNames.Count <= 1)
+            {
+                continue;
+            }
+
+            if (item.QuestNames.Any(name => string.Equals(name, requirement, StringComparison.OrdinalIgnoreCase)))
+            {
+                return item.QuestNames;
+            }
+        }
+
+        return requirement switch
+        {
+            "Leves of Bentbranch" or "Leves of Horizon" or "Leves of Swiftperch" =>
+                ["Leves of Bentbranch", "Leves of Horizon", "Leves of Swiftperch"],
+            _ => [],
+        };
+    }
+
+    private static List<string> ExtractRequirements(string instructions)
+    {
+        var results = new List<string>();
+        if (string.IsNullOrWhiteSpace(instructions))
+        {
+            return results;
+        }
+
+        foreach (var marker in new[] { "Requires ", "after " })
+        {
+            var start = instructions.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (start < 0)
+            {
+                continue;
+            }
+
+            start += marker.Length;
+            var end = instructions.IndexOf('.', start);
+            if (end < 0)
+            {
+                end = instructions.Length;
+            }
+
+            var value = instructions[start..end].Trim();
+            if (value.Length > 0 && value.Length < 80 && !results.Contains(value, StringComparer.OrdinalIgnoreCase))
+            {
+                results.Add(value);
+            }
+        }
+
+        return results;
     }
 
     private static bool IsGenericQuestName(string name)

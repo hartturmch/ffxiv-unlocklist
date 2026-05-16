@@ -268,11 +268,16 @@ public sealed class MainWindow : Window, IDisposable
         ImGui.SameLine();
 
         var title = $"{item.Entry.Title}##{item.Entry.Id}";
+        ImGui.PushStyleColor(ImGuiCol.Text, GetAvailabilityColor(item));
         if (!ImGui.TreeNodeEx(title))
         {
+            ImGui.PopStyleColor();
+            DrawAvailabilityTooltip(item);
             return;
         }
 
+        ImGui.PopStyleColor();
+        DrawAvailabilityTooltip(item);
         DrawBadges(item);
 
         if (!string.IsNullOrWhiteSpace(item.Entry.UnlockName) && item.Entry.UnlockName != item.Entry.Title)
@@ -285,7 +290,9 @@ public sealed class MainWindow : Window, IDisposable
             DrawQuestList("Quest", item.Entry.QuestNames);
         }
 
-        var requirements = ExpandAlternativeRequirements(ExtractRequirements(item.Entry.Instructions), plugin.UnlockData.Items);
+        var requirements = item.RequiredQuestNames.Count > 0
+            ? item.RequiredQuestNames.ToList()
+            : ExpandAlternativeRequirements(ExtractRequirements(item.Entry.Instructions), plugin.UnlockData.Items);
         if (requirements.Count > 0)
         {
             DrawQuestList("Requirement", requirements);
@@ -454,7 +461,12 @@ public sealed class MainWindow : Window, IDisposable
             return "Done";
         }
 
-        return item.IsAutoTracked ? "Open" : "Needs Manual Check";
+        if (!item.IsAvailable)
+        {
+            return "Unavailable";
+        }
+
+        return item.IsAutoTracked ? "Available" : "Needs Manual Check";
     }
 
     private static void DrawStatusBadge(ResolvedUnlockable item)
@@ -463,11 +475,37 @@ public sealed class MainWindow : Window, IDisposable
         var color = label switch
         {
             "Done" => new Vector4(0.35f, 0.95f, 0.55f, 1f),
-            "Open" => new Vector4(0.35f, 0.68f, 1f, 1f),
+            "Available" => new Vector4(0.35f, 0.68f, 1f, 1f),
+            "Unavailable" => new Vector4(0.55f, 0.55f, 0.55f, 1f),
             _ => new Vector4(1f, 0.76f, 0.32f, 1f),
         };
 
         ImGui.TextColored(color, $"[{label}]");
+    }
+
+    private static Vector4 GetAvailabilityColor(ResolvedUnlockable item)
+    {
+        if (item.IsComplete)
+        {
+            return new Vector4(0.35f, 0.95f, 0.55f, 1f);
+        }
+
+        if (!item.IsAvailable)
+        {
+            return new Vector4(0.55f, 0.55f, 0.55f, 1f);
+        }
+
+        return new Vector4(0.35f, 0.68f, 1f, 1f);
+    }
+
+    private static void DrawAvailabilityTooltip(ResolvedUnlockable item)
+    {
+        if (!ImGui.IsItemHovered() || item.IsComplete || item.IsAvailable || item.MissingRequirementNames.Count == 0)
+        {
+            return;
+        }
+
+        ImGui.SetTooltip($"Unavailable. Complete first: {string.Join(" / ", item.MissingRequirementNames)}");
     }
 
     private static List<string> ExtractRequirements(string instructions)
