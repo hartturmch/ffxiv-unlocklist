@@ -69,7 +69,7 @@ $repoJson = @($repoEntry) | ConvertTo-Json -Depth 8
 if (-not $repoJson.TrimStart().StartsWith('[')) {
     $repoJson = "[$repoJson]"
 }
-$repoJson | Set-Content -LiteralPath $RepoPath -Encoding UTF8
+[System.IO.File]::WriteAllText($RepoPath, $repoJson, [System.Text.UTF8Encoding]::new($false))
 Copy-Item -LiteralPath (Join-Path $StageRoot 'images\icon.png') -Destination (Join-Path $DistRoot 'icon.png') -Force
 Remove-Item -LiteralPath $StageRoot -Recurse -Force
 
