@@ -34,7 +34,7 @@ dotnet build .\dalamud-plugin\VaelarisUnlockList\VaelarisUnlockList.csproj
 Add this URL to Dalamud Custom Plugin Repositories:
 
 ```text
-https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/pluginmaster.json
+https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/pluginmaster.json
 ```
 
 Then install **Unlock List** from the Dalamud Plugin Installer.
@@ -72,7 +72,7 @@ Commit and push:
 Dalamud repository URL:
 
 ```text
-https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/pluginmaster.json
+https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/pluginmaster.json
 ```
 
 ## In-game

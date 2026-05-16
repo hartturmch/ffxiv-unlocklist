@@ -15,7 +15,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$BaseUrl = "https://raw.githubusercontent.com/$Owner/$Repo/refs/heads/$Branch/dalamud-plugin/dist"
+$BaseUrl = "https://cdn.jsdelivr.net/gh/$Owner/$Repo@$Branch/dalamud-plugin/dist"
 $PackageScript = Join-Path $PSScriptRoot 'package-release.ps1'
 
 & $PackageScript -Configuration $Configuration -BaseUrl $BaseUrl -Version $Version
@@ -23,6 +23,9 @@ $PackageScript = Join-Path $PSScriptRoot 'package-release.ps1'
 Write-Host ''
 Write-Host 'GitHub raw repository URL for Dalamud:'
 Write-Host "$BaseUrl/pluginmaster.json"
+Write-Host ''
+Write-Host 'Purge jsDelivr after push:'
+Write-Host "https://purge.jsdelivr.net/gh/$Owner/$Repo@$Branch/dalamud-plugin/dist/pluginmaster.json"
 Write-Host ''
 Write-Host 'Commit and push these files:'
 Write-Host '  dalamud-plugin/dist/pluginmaster.json'

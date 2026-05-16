@@ -2,8 +2,8 @@
     "Author":  "Stan",
     "Name":  "Unlock List",
     "InternalName":  "VaelarisUnlockList",
-    "AssemblyVersion":  "0.1.7.0",
-    "TestingAssemblyVersion":  "0.1.7.0",
+    "AssemblyVersion":  "0.1.8.0",
+    "TestingAssemblyVersion":  "0.1.8.0",
     "Punchline":  "Track FFXIV unlockables and open their map locations.",
     "Description":  "Shows unlockable content, marks completed quest-backed entries when possible, keeps manual state for unsupported entries, and opens map flags for known locations. Command: /vunlock",
     "ApplicableVersion":  "any",
@@ -14,10 +14,10 @@
                  "guide"
              ],
     "DalamudApiLevel":  15,
-    "DownloadLinkInstall":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.7.0.zip",
-    "DownloadLinkUpdate":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.7.0.zip",
-    "DownloadLinkTesting":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/VaelarisUnlockList-0.1.7.0.zip",
-    "IconUrl":  "https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/icon.png",
+    "DownloadLinkInstall":  "https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/VaelarisUnlockList-0.1.8.0.zip",
+    "DownloadLinkUpdate":  "https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/VaelarisUnlockList-0.1.8.0.zip",
+    "DownloadLinkTesting":  "https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/VaelarisUnlockList-0.1.8.0.zip",
+    "IconUrl":  "https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@main/dalamud-plugin/dist/icon.png",
     "IsHide":  false,
     "IsTestingExclusive":  false
 }]
