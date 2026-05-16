@@ -3,6 +3,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using VaelarisUnlockList.Models;
 using VaelarisUnlockList.Services;
 
 namespace VaelarisUnlockList.Windows;
@@ -275,13 +276,13 @@ public sealed class MainWindow : Window, IDisposable
 
         if (item.Entry.QuestNames.Count > 0)
         {
-            ImGui.TextWrapped($"Quest: {string.Join(" / ", item.Entry.QuestNames)}");
+            DrawQuestList("Quest", item.Entry.QuestNames);
         }
 
-        var requirements = ExtractRequirements(item.Entry.Instructions);
+        var requirements = ExpandAlternativeRequirements(ExtractRequirements(item.Entry.Instructions), plugin.UnlockData.Items);
         if (requirements.Count > 0)
         {
-            ImGui.TextWrapped($"Requirement: {string.Join(" / ", requirements)}");
+            DrawQuestList("Requirement", requirements);
         }
 
         var locationText = item.MapLocation?.Text ?? item.Entry.Locations.FirstOrDefault()?.Text;
@@ -321,10 +322,12 @@ public sealed class MainWindow : Window, IDisposable
             ImGui.TextDisabled(item.Entry.Zone);
         }
 
-        if (item.QuestRowId is not null)
+        if (item.QuestRowIds.Count > 0)
         {
             ImGui.SameLine();
-            ImGui.TextDisabled($"Quest #{item.QuestRowId}");
+            ImGui.TextDisabled(item.QuestRowIds.Count == 1
+                ? $"Quest #{item.QuestRowIds[0]}"
+                : $"Quests {string.Join("/", item.QuestRowIds.Take(3))}{(item.QuestRowIds.Count > 3 ? "+" : string.Empty)}");
         }
 
         if (item.AetherCurrentRowId is not null)
@@ -491,5 +494,61 @@ public sealed class MainWindow : Window, IDisposable
         }
 
         return results;
+    }
+
+    private static void DrawQuestList(string label, IReadOnlyList<string> values)
+    {
+        if (values.Count <= 1)
+        {
+            ImGui.TextWrapped($"{label}: {values.FirstOrDefault()}");
+            return;
+        }
+
+        ImGui.TextWrapped($"{label}: One of these:");
+        foreach (var value in values)
+        {
+            ImGui.BulletText(value);
+        }
+    }
+
+    private static List<string> ExpandAlternativeRequirements(List<string> requirements, IReadOnlyList<UnlockableEntry> items)
+    {
+        var results = new List<string>();
+        foreach (var requirement in requirements)
+        {
+            var alternatives = FindAlternativeRequirementGroup(requirement, items);
+            foreach (var alternative in alternatives.Count > 0 ? alternatives : [requirement])
+            {
+                if (!results.Contains(alternative, StringComparer.OrdinalIgnoreCase))
+                {
+                    results.Add(alternative);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    private static List<string> FindAlternativeRequirementGroup(string requirement, IReadOnlyList<UnlockableEntry> items)
+    {
+        foreach (var item in items)
+        {
+            if (item.QuestNames.Count <= 1)
+            {
+                continue;
+            }
+
+            if (item.QuestNames.Any(name => string.Equals(name, requirement, StringComparison.OrdinalIgnoreCase)))
+            {
+                return item.QuestNames;
+            }
+        }
+
+        return requirement switch
+        {
+            "Leves of Bentbranch" or "Leves of Horizon" or "Leves of Swiftperch" =>
+                ["Leves of Bentbranch", "Leves of Horizon", "Leves of Swiftperch"],
+            _ => [],
+        };
     }
 }

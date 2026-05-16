@@ -81,18 +81,20 @@ public sealed class UnlockDataService
     public ResolvedUnlockable Resolve(UnlockableEntry item)
     {
         var gameData = GetMergedGameData(item);
-        var questRowId = gameData.QuestId;
+        var questRowIds = ResolveQuestRowIds(item, gameData);
+        var questRowId = questRowIds.FirstOrDefault();
         var aetherCurrentRowId = gameData.AetherCurrentId;
-        var autoTracked = questRowId is not null || aetherCurrentRowId is not null;
+        var autoTracked = questRowIds.Count > 0 || aetherCurrentRowId is not null;
         var isComplete = IsManualComplete(item.Id)
-            || (questRowId is not null && IsQuestComplete(questRowId.Value))
+            || questRowIds.Any(IsQuestComplete)
             || (aetherCurrentRowId is not null && IsAetherCurrentComplete(aetherCurrentRowId.Value));
         var mapTarget = ResolveMapTarget(item, gameData);
 
         return new ResolvedUnlockable
         {
             Entry = item,
-            QuestRowId = questRowId,
+            QuestRowId = questRowId == 0 ? null : questRowId,
+            QuestRowIds = questRowIds,
             AetherCurrentRowId = aetherCurrentRowId,
             TerritoryTypeId = mapTarget?.TerritoryTypeId,
             MapId = mapTarget?.MapId,
@@ -458,6 +460,51 @@ public sealed class UnlockDataService
         }
 
         return null;
+    }
+
+    private List<uint> ResolveQuestRowIds(UnlockableEntry item, GameDataIds gameData)
+    {
+        var rowIds = new List<uint>();
+        if (gameData.QuestId is not null)
+        {
+            rowIds.Add(gameData.QuestId.Value);
+        }
+
+        foreach (var questName in ExpandQuestNameCandidates(item.Completion.QuestNames.Concat(item.QuestNames)))
+        {
+            if (IsGenericQuestName(questName))
+            {
+                continue;
+            }
+
+            if (questIdsByName.TryGetValue(NormalizeKey(questName), out var rowId))
+            {
+                rowIds.Add(rowId);
+            }
+
+            var looseKey = NormalizeLooseKey(questName);
+            if (questTargetsByLooseName.TryGetValue(looseKey, out var exactTargets))
+            {
+                rowIds.AddRange(exactTargets.Select(target => target.RowId));
+            }
+
+            var containedTargets = questTargetsByLooseName.Values
+                .SelectMany(targets => targets)
+                .Where(target => target.LooseName.Contains(looseKey, StringComparison.OrdinalIgnoreCase) || looseKey.Contains(target.LooseName, StringComparison.OrdinalIgnoreCase))
+                .GroupBy(target => target.RowId)
+                .Select(group => group.First())
+                .ToList();
+
+            if (containedTargets.Count == 1)
+            {
+                rowIds.Add(containedTargets[0].RowId);
+            }
+        }
+
+        return rowIds
+            .Where(rowId => rowId != 0)
+            .Distinct()
+            .ToList();
     }
 
     private uint? ResolveAetherCurrentRowId(UnlockableEntry item, GameDataIds gameData)

@@ -8,6 +8,8 @@ public sealed class ResolvedUnlockable
 
     public uint? QuestRowId { get; init; }
 
+    public IReadOnlyList<uint> QuestRowIds { get; init; } = [];
+
     public uint? AetherCurrentRowId { get; init; }
 
     public uint? TerritoryTypeId { get; init; }
