@@ -10,10 +10,14 @@ namespace VaelarisUnlockList.Windows;
 
 public sealed class MainWindow : Window, IDisposable
 {
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(10);
+
     private readonly Plugin plugin;
     private string search = string.Empty;
     private string categorySearch = string.Empty;
     private string mapSearch = string.Empty;
+    private List<ResolvedUnlockable> resolvedCache = [];
+    private DateTime nextRefreshUtc = DateTime.MinValue;
 
     public MainWindow(Plugin plugin)
         : base("Unlock List##VaelarisUnlockList")
@@ -32,11 +36,15 @@ public sealed class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        DrawToolbar();
-
         var currentTerritory = Plugin.ClientState.TerritoryType;
+        var resolvedItems = GetResolvedCache(currentTerritory);
+
+        DrawToolbar(resolvedItems, currentTerritory);
+
         var hasSearch = HasSearchText();
-        var allItems = plugin.UnlockData.ResolveAll(plugin.Configuration.CurrentZoneOnly, currentTerritory).ToList();
+        var allItems = plugin.Configuration.CurrentZoneOnly
+            ? resolvedItems.Where(item => item.TerritoryTypeId == currentTerritory).ToList()
+            : resolvedItems;
         var filteredItems = allItems
             .Where(MatchesSearch)
             .Where(item => hasSearch || IsStatusFilter("Complete") || plugin.Configuration.ShowCompleted || !item.IsComplete)
@@ -74,7 +82,7 @@ public sealed class MainWindow : Window, IDisposable
         DrawFooterFilters();
     }
 
-    private void DrawToolbar()
+    private void DrawToolbar(IReadOnlyList<ResolvedUnlockable> resolvedItems, uint currentTerritory)
     {
         ImGui.SetNextItemWidth(Math.Max(220f, ImGui.GetContentRegionAvail().X - (260f * ImGuiHelpers.GlobalScale)));
         ImGui.InputTextWithHint("##unlock-search", "Search unlocks, quests, zones...", ref search, 160);
@@ -83,6 +91,7 @@ public sealed class MainWindow : Window, IDisposable
         if (ImGui.Button("Reload"))
         {
             plugin.UnlockData.Load();
+            InvalidateResolvedCache();
         }
 
         var currentZoneOnly = plugin.Configuration.CurrentZoneOnly;
@@ -102,10 +111,7 @@ public sealed class MainWindow : Window, IDisposable
 
         DrawFilterCombos();
 
-        var currentTerritory = Plugin.ClientState.TerritoryType;
-        var nextCurrentZone = plugin.UnlockData
-            .ResolveAll(false, currentTerritory)
-            .FirstOrDefault(item => !item.IsComplete && item.CanOpenMap && item.TerritoryTypeId == currentTerritory);
+        var nextCurrentZone = resolvedItems.FirstOrDefault(item => !item.IsComplete && item.CanOpenMap && item.TerritoryTypeId == currentTerritory);
 
         if (nextCurrentZone is null)
         {
@@ -349,6 +355,7 @@ public sealed class MainWindow : Window, IDisposable
         if (ImGui.Checkbox($"Manual complete##{item.Entry.Id}", ref manualComplete))
         {
             plugin.UnlockData.SetManualComplete(item.Entry.Id, manualComplete);
+            InvalidateResolvedCache();
         }
 
         ImGui.SameLine();
@@ -494,6 +501,24 @@ public sealed class MainWindow : Window, IDisposable
         }
 
         return results;
+    }
+
+    private IReadOnlyList<ResolvedUnlockable> GetResolvedCache(uint currentTerritory)
+    {
+        var now = DateTime.UtcNow;
+        if (resolvedCache.Count > 0 && now < nextRefreshUtc)
+        {
+            return resolvedCache;
+        }
+
+        resolvedCache = plugin.UnlockData.ResolveAll(false, currentTerritory).ToList();
+        nextRefreshUtc = now + RefreshInterval;
+        return resolvedCache;
+    }
+
+    private void InvalidateResolvedCache()
+    {
+        nextRefreshUtc = DateTime.MinValue;
     }
 
     private static void DrawQuestList(string label, IReadOnlyList<string> values)
