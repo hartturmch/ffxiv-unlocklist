@@ -15,7 +15,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$BaseUrl = "https://raw.githubusercontent.com/$Owner/$Repo/$Branch/dalamud-plugin/dist"
+$BaseUrl = "https://raw.githubusercontent.com/$Owner/$Repo/refs/heads/$Branch/dalamud-plugin/dist"
 $PackageScript = Join-Path $PSScriptRoot 'package-release.ps1'
 
 & $PackageScript -Configuration $Configuration -BaseUrl $BaseUrl -Version $Version

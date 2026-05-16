@@ -32,7 +32,7 @@ Command:
 3. Add this custom plugin repository:
 
 ```text
-https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/main/dalamud-plugin/dist/pluginmaster.json
+https://raw.githubusercontent.com/hartturmch/ffxiv-unlocklist/refs/heads/main/dalamud-plugin/dist/pluginmaster.json
 ```
 
 4. Save.
