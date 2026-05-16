@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Repo,
 
-    [string]$Branch = 'master',
+    [string]$Branch = 'plugin-repo',
 
     [string]$Configuration = 'Release',
 
