@@ -643,9 +643,25 @@ public sealed class UnlockDataService
             categoryName = "matching class/job";
         }
 
-        requirementLine = $"Current Class/Job: {categoryName} (Lv. {requiredLevel})";
+        var categoryDescription = DescribeClassJobCategory(categoryName);
+        requirementLine = string.IsNullOrWhiteSpace(categoryDescription)
+            ? $"Current Class/Job: {categoryName} (Lv. {requiredLevel})"
+            : $"Current Class/Job: {categoryName} ({categoryDescription}) (Lv. {requiredLevel})";
         isMet = CurrentClassJobMatches(category) && playerState.Level >= requiredLevel;
         return true;
+    }
+
+    private static string DescribeClassJobCategory(string categoryName)
+    {
+        return categoryName switch
+        {
+            "Disciple of the Hand" => "crafting classes: CRP, BSM, ARM, GSM, LTW, WVR, ALC, CUL",
+            "Disciple of the Land" => "gathering classes: MIN, BTN, FSH",
+            "Disciple of War or Magic" => "combat classes/jobs",
+            "Disciple of War" => "physical combat classes/jobs",
+            "Disciple of Magic" => "magical combat classes/jobs",
+            _ => string.Empty,
+        };
     }
 
     private bool CurrentClassJobMatches(ClassJobCategory category)
