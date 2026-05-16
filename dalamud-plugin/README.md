@@ -75,12 +75,6 @@ Dalamud repository URL:
 https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@plugin-repo/dalamud-plugin/dist/pluginmaster.json
 ```
 
-## Branches
-
-- `main` is the normal project branch.
-- `plugin-repo` is the published Dalamud repository branch used by jsDelivr.
-- `master` is not used.
-
 ## In-game
 
 The plugin adds `/vunlock` and a main UI button in Dalamud. It can:

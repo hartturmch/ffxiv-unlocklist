@@ -46,9 +46,3 @@ https://cdn.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@plugin-repo/dalamud-plug
 This is a custom repo plugin. It is not in the official Dalamud plugin list.
 
 Most quest-backed entries can be tracked automatically. Some content still needs manual checking because FFXIV/Dalamud unlock state is not exposed for every unlock type.
-
-### Branches
-
-- `main` is the normal project branch.
-- `plugin-repo` is the published Dalamud repository branch used by jsDelivr.
-- `master` is not used.
