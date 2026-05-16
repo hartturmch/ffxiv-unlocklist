@@ -298,6 +298,11 @@ public sealed class MainWindow : Window, IDisposable
             DrawQuestList("Requirement", requirements);
         }
 
+        if (item.AvailabilityRequirements.Count > 0)
+        {
+            DrawQuestList("Quest Requirements", item.AvailabilityRequirements);
+        }
+
         var locationText = item.MapLocation?.Text ?? item.Entry.Locations.FirstOrDefault()?.Text;
         if (!string.IsNullOrWhiteSpace(locationText))
         {
@@ -505,7 +510,7 @@ public sealed class MainWindow : Window, IDisposable
             return;
         }
 
-        ImGui.SetTooltip($"Unavailable. Complete first: {string.Join(" / ", item.MissingRequirementNames)}");
+        ImGui.SetTooltip($"Unavailable. Missing: {string.Join(" / ", item.MissingRequirementNames)}");
     }
 
     private static List<string> ExtractRequirements(string instructions)

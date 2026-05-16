@@ -26,6 +26,8 @@ public sealed class ResolvedUnlockable
 
     public IReadOnlyList<string> RequiredQuestNames { get; init; } = [];
 
+    public IReadOnlyList<string> AvailabilityRequirements { get; init; } = [];
+
     public IReadOnlyList<string> MissingRequirementNames { get; init; } = [];
 
     public string StatusLabel => IsComplete ? "Complete" : IsAutoTracked ? "Open" : "Manual";

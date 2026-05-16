@@ -18,6 +18,7 @@ public sealed class UnlockDataService
 
     private readonly IDataManager dataManager;
     private readonly IGameGui gameGui;
+    private readonly IPlayerState playerState;
     private readonly IUnlockState unlockState;
     private readonly IPluginLog log;
     private readonly Configuration configuration;
@@ -34,12 +35,14 @@ public sealed class UnlockDataService
     public UnlockDataService(
         IDataManager dataManager,
         IGameGui gameGui,
+        IPlayerState playerState,
         IUnlockState unlockState,
         IPluginLog log,
         Configuration configuration)
     {
         this.dataManager = dataManager;
         this.gameGui = gameGui;
+        this.playerState = playerState;
         this.unlockState = unlockState;
         this.log = log;
         this.configuration = configuration;
@@ -90,8 +93,12 @@ public sealed class UnlockDataService
             || (aetherCurrentRowId is not null && IsAetherCurrentComplete(aetherCurrentRowId.Value));
         var requiredQuestNames = ExpandAlternativeRequirements(ExtractRequirements(item.Instructions));
         var requiredQuestIds = ResolveQuestRowIds(requiredQuestNames);
-        var hasKnownRequirements = requiredQuestIds.Count > 0;
-        var isAvailable = isComplete || !hasKnownRequirements || requiredQuestIds.Any(IsQuestComplete);
+        var questAvailability = EvaluateQuestAvailability(questRowIds);
+        var hasKnownRequirements = requiredQuestIds.Count > 0 || questAvailability.RequirementLines.Count > 0;
+        var isAvailable = isComplete
+            || questAvailability.IsAvailable
+            || !hasKnownRequirements
+            || requiredQuestIds.Any(IsQuestComplete);
         var mapTarget = ResolveMapTarget(item, gameData);
 
         return new ResolvedUnlockable
@@ -107,7 +114,8 @@ public sealed class UnlockDataService
             IsAutoTracked = autoTracked,
             IsAvailable = isAvailable,
             RequiredQuestNames = requiredQuestNames,
-            MissingRequirementNames = isAvailable ? [] : requiredQuestNames,
+            AvailabilityRequirements = questAvailability.RequirementLines,
+            MissingRequirementNames = isAvailable ? [] : questAvailability.MissingRequirementLines.Concat(requiredQuestNames).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
         };
     }
 
@@ -540,6 +548,131 @@ public sealed class UnlockDataService
             .Where(rowId => rowId != 0)
             .Distinct()
             .ToList();
+    }
+
+    private QuestAvailability EvaluateQuestAvailability(IReadOnlyList<uint> questRowIds)
+    {
+        if (questRowIds.Count == 0)
+        {
+            return new QuestAvailability(true, [], []);
+        }
+
+        var allRequirements = new List<string>();
+        var allMissing = new List<string>();
+        var anyAvailable = false;
+
+        foreach (var questRowId in questRowIds)
+        {
+            if (!dataManager.GetExcelSheet<Quest>().TryGetRow(questRowId, out var quest))
+            {
+                continue;
+            }
+
+            var requirementLines = GetQuestRequirementLines(quest);
+            var missingLines = GetMissingQuestRequirementLines(quest);
+            AddRangeUnique(allRequirements, requirementLines);
+            AddRangeUnique(allMissing, missingLines);
+
+            if (missingLines.Count == 0)
+            {
+                anyAvailable = true;
+            }
+        }
+
+        return new QuestAvailability(anyAvailable, allRequirements, anyAvailable ? [] : allMissing);
+    }
+
+    private List<string> GetQuestRequirementLines(Quest quest)
+    {
+        var lines = new List<string>();
+        foreach (var previousQuest in quest.PreviousQuest)
+        {
+            if (previousQuest.RowId != 0)
+            {
+                lines.Add($"Complete: {previousQuest.Value.Name}");
+            }
+        }
+
+        if (TryGetQuestClassJobRequirement(quest, out var classJobLine, out _))
+        {
+            lines.Add(classJobLine);
+        }
+
+        return lines.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private List<string> GetMissingQuestRequirementLines(Quest quest)
+    {
+        var missing = new List<string>();
+        foreach (var previousQuest in quest.PreviousQuest)
+        {
+            if (previousQuest.RowId != 0 && !IsQuestComplete(previousQuest.RowId))
+            {
+                missing.Add($"Complete: {previousQuest.Value.Name}");
+            }
+        }
+
+        if (TryGetQuestClassJobRequirement(quest, out var classJobLine, out var meetsClassJobRequirement) && !meetsClassJobRequirement)
+        {
+            missing.Add(classJobLine);
+        }
+
+        return missing.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private bool TryGetQuestClassJobRequirement(Quest quest, out string requirementLine, out bool isMet)
+    {
+        requirementLine = string.Empty;
+        isMet = true;
+
+        if (quest.ClassJobCategory0.RowId == 0 || !quest.ClassJobCategory0.IsValid)
+        {
+            return false;
+        }
+
+        var category = quest.ClassJobCategory0.Value;
+        var requiredLevel = quest.ClassJobLevel.Where(level => level > 0).DefaultIfEmpty(quest.LevelMax).FirstOrDefault();
+        if (requiredLevel == 0)
+        {
+            return false;
+        }
+
+        var categoryName = category.Name.ToString();
+        if (string.IsNullOrWhiteSpace(categoryName))
+        {
+            categoryName = "matching class/job";
+        }
+
+        requirementLine = $"Current Class/Job: {categoryName} (Lv. {requiredLevel})";
+        isMet = CurrentClassJobMatches(category) && playerState.Level >= requiredLevel;
+        return true;
+    }
+
+    private bool CurrentClassJobMatches(ClassJobCategory category)
+    {
+        if (playerState.ClassJob.RowId == 0 || !dataManager.GetExcelSheet<ClassJob>().TryGetRow(playerState.ClassJob.RowId, out var classJob))
+        {
+            return false;
+        }
+
+        var abbreviation = classJob.Abbreviation.ToString();
+        if (string.IsNullOrWhiteSpace(abbreviation))
+        {
+            return false;
+        }
+
+        return typeof(ClassJobCategory).GetProperty(abbreviation)?.GetValue(category) is true;
+    }
+
+    private static void AddRangeUnique(List<string> target, IEnumerable<string> values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && !target.Contains(value, StringComparer.OrdinalIgnoreCase))
+            {
+                target.Add(value);
+            }
+        }
     }
 
     private uint? ResolveAetherCurrentRowId(UnlockableEntry item, GameDataIds gameData)
@@ -1061,4 +1194,6 @@ public sealed class UnlockDataService
     private sealed record QuestNameTarget(uint RowId, string Name, string LooseName);
 
     private sealed record ResolvedMapTarget(uint TerritoryTypeId, uint MapId, UnlockLocation Location);
+
+    private sealed record QuestAvailability(bool IsAvailable, List<string> RequirementLines, List<string> MissingRequirementLines);
 }
