@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
@@ -290,17 +291,14 @@ public sealed class MainWindow : Window, IDisposable
             DrawQuestList("Quest", item.Entry.QuestNames);
         }
 
-        var requirements = item.RequiredQuestNames.Count > 0
-            ? item.RequiredQuestNames.ToList()
-            : ExpandAlternativeRequirements(ExtractRequirements(item.Entry.Instructions), plugin.UnlockData.Items);
+        var requirements = item.AvailabilityRequirements.Count > 0
+            ? item.AvailabilityRequirements.ToList()
+            : item.RequiredQuestNames.Count > 0
+                ? item.RequiredQuestNames.ToList()
+                : ExpandAlternativeRequirements(ExtractRequirements(item.Entry.Instructions), plugin.UnlockData.Items);
         if (requirements.Count > 0)
         {
-            DrawQuestList("Requirement", requirements);
-        }
-
-        if (item.AvailabilityRequirements.Count > 0)
-        {
-            DrawQuestList("Quest Requirements", item.AvailabilityRequirements);
+            DrawQuestList("Quest Requirements", requirements);
         }
 
         var locationText = item.MapLocation?.Text ?? item.Entry.Locations.FirstOrDefault()?.Text;
@@ -521,29 +519,57 @@ public sealed class MainWindow : Window, IDisposable
             return results;
         }
 
-        foreach (var marker in new[] { "Requires ", "after " })
-        {
-            var start = instructions.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-            if (start < 0)
-            {
-                continue;
-            }
-
-            start += marker.Length;
-            var end = instructions.IndexOf('.', start);
-            if (end < 0)
-            {
-                end = instructions.Length;
-            }
-
-            var value = instructions[start..end].Trim();
-            if (value.Length > 0 && value.Length < 80 && !results.Contains(value, StringComparer.OrdinalIgnoreCase))
-            {
-                results.Add(value);
-            }
-        }
+        AddRequirementAfterMarker(instructions, "Requires ", results);
+        AddRequirementAfterPattern(instructions, @"\bafter\s+you\s+complete\s+(?<value>[^.]+)", results);
+        AddRequirementAfterPattern(instructions, @"\bafter\s+completing\s+(?<value>[^.]+)", results);
 
         return results;
+    }
+
+    private static void AddRequirementAfterMarker(string instructions, string marker, List<string> results)
+    {
+        var start = instructions.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (start < 0)
+        {
+            return;
+        }
+
+        start += marker.Length;
+        var end = instructions.IndexOf('.', start);
+        if (end < 0)
+        {
+            end = instructions.Length;
+        }
+
+        AddRequirement(instructions[start..end], results);
+    }
+
+    private static void AddRequirementAfterPattern(string instructions, string pattern, List<string> results)
+    {
+        var match = Regex.Match(instructions, pattern, RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            AddRequirement(match.Groups["value"].Value, results);
+        }
+    }
+
+    private static void AddRequirement(string value, List<string> results)
+    {
+        value = value.Trim();
+        if (value.Length == 0 || value.Length >= 80 || IsPronounRequirement(value))
+        {
+            return;
+        }
+
+        if (!results.Contains(value, StringComparer.OrdinalIgnoreCase))
+        {
+            results.Add(value);
+        }
+    }
+
+    private static bool IsPronounRequirement(string value)
+    {
+        return value.Trim().TrimEnd('.').Equals("it", StringComparison.OrdinalIgnoreCase);
     }
 
     private IReadOnlyList<ResolvedUnlockable> GetResolvedCache(uint currentTerritory)
