@@ -301,7 +301,7 @@ public sealed class MainWindow : Window, IDisposable
             DrawQuestList("Quest Requirements", requirements);
         }
 
-        var locationText = item.MapLocation?.Text ?? item.Entry.Locations.FirstOrDefault()?.Text;
+        var locationText = FormatLocation(item.MapLocation ?? item.Entry.Locations.FirstOrDefault());
         if (!string.IsNullOrWhiteSpace(locationText))
         {
             ImGui.TextWrapped($"Location: {locationText}");
@@ -357,6 +357,31 @@ public sealed class MainWindow : Window, IDisposable
             ImGui.SameLine();
             ImGui.TextDisabled($"Map {item.TerritoryTypeId}/{item.MapId}");
         }
+    }
+
+    private static string FormatLocation(UnlockLocation? location)
+    {
+        if (location is null)
+        {
+            return string.Empty;
+        }
+
+        if (location.X is not null && location.Y is not null)
+        {
+            var coordinates = $"X:{location.X.Value:0.#}, Y:{location.Y.Value:0.#}";
+            return string.IsNullOrWhiteSpace(location.Place)
+                ? coordinates
+                : $"{location.Place} ({coordinates})";
+        }
+
+        if (!string.IsNullOrWhiteSpace(location.Place) && !string.IsNullOrWhiteSpace(location.Text))
+        {
+            return location.Text.Contains(location.Place, StringComparison.OrdinalIgnoreCase)
+                ? location.Text
+                : $"{location.Place}: {location.Text}";
+        }
+
+        return !string.IsNullOrWhiteSpace(location.Text) ? location.Text : location.Place;
     }
 
     private void DrawActions(ResolvedUnlockable item)

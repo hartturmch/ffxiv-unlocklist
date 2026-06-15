@@ -20794,13 +20794,13 @@
       "level": "60",
       "itemLevel": "60",
       "expansion": "",
-      "zone": "Mor Dhona",
+      "zone": "Idyllshire",
       "locations": [
         {
-          "place": "Mor Dhona",
-          "text": "X:22.3, Y:6.8:Mor Dhona",
-          "x": 22.3,
-          "y": 6.8,
+          "place": "Idyllshire",
+          "text": "X:5.7, Y:7.0:Idyllshire",
+          "x": 5.7,
+          "y": 7,
           "z": null
         }
       ],
@@ -20810,7 +20810,7 @@
         "https://ffxiv.consolegameswiki.com/wiki/Scrip_Exchange_(Idyllshire)",
         "https://ffxiv.consolegameswiki.com/wiki/Splendors_Vendor_(Idyllshire)",
         "https://ffxiv.consolegameswiki.com/wiki/Go_West,_Craftsman",
-        "https://ffxiv.consolegameswiki.com/wiki/Mor_Dhona"
+        "https://ffxiv.consolegameswiki.com/wiki/Idyllshire"
       ],
       "completion": {
         "kind": "Quest",
@@ -20820,8 +20820,8 @@
       },
       "gameData": {
         "questId": 67634,
-        "territoryTypeId": 151,
-        "mapId": 184,
+        "territoryTypeId": 478,
+        "mapId": 257,
         "aetherCurrentId": null,
         "unlockLinkId": null
       },
