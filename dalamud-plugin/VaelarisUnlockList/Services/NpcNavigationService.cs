@@ -141,10 +141,12 @@ public sealed class NpcNavigationService
     {
         var results = new List<NpcMapLocation>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var residentSheet = dataManager.GetExcelSheet<ENpcResident>();
+        var baseSheet = dataManager.GetExcelSheet<ENpcBase>();
 
         foreach (var level in dataManager.GetExcelSheet<Level>())
         {
-            if (!TryGetResident(level, out var resident))
+            if (!TryGetResident(level, residentSheet, out var resident))
             {
                 continue;
             }
@@ -199,26 +201,37 @@ public sealed class NpcNavigationService
                 map.Value.RowId,
                 roundedX,
                 roundedY,
-                IsImportantNpc(level)));
+                IsImportantNpc(level, baseSheet)));
         }
 
         log.Information("Indexed {Count} NPC map locations.", results.Count);
         return results;
     }
 
-    private static bool TryGetResident(Level level, out ENpcResident resident)
+    private static bool TryGetResident(Level level, Lumina.Excel.ExcelSheet<ENpcResident> residentSheet, out ENpcResident resident)
     {
-        if (level.EventId.TryGetValue<ENpcResident>(out resident))
+        if (level.EventId.RowId != 0 && residentSheet.TryGetRow(level.EventId.RowId, out resident))
         {
             return true;
         }
 
-        return level.Object.TryGetValue<ENpcResident>(out resident);
+        if (level.Object.RowId != 0 && residentSheet.TryGetRow(level.Object.RowId, out resident))
+        {
+            return true;
+        }
+
+        resident = default;
+        return false;
     }
 
-    private static bool IsImportantNpc(Level level)
+    private static bool IsImportantNpc(Level level, Lumina.Excel.ExcelSheet<ENpcBase> baseSheet)
     {
-        return level.Object.TryGetValue<ENpcBase>(out var npcBase) && npcBase.Important;
+        if (level.Object.RowId != 0 && baseSheet.TryGetRow(level.Object.RowId, out var npcBase))
+        {
+            return npcBase.Important;
+        }
+
+        return level.EventId.RowId != 0 && baseSheet.TryGetRow(level.EventId.RowId, out npcBase) && npcBase.Important;
     }
 
     private static bool IsUsableMapCoordinate(float value)
