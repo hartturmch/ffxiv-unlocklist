@@ -44,7 +44,7 @@ public sealed class MainWindow : Window, IDisposable
 
         var hasSearch = HasSearchText();
         var allItems = plugin.Configuration.CurrentZoneOnly
-            ? resolvedItems.Where(item => item.TerritoryTypeId == currentTerritory).ToList()
+            ? resolvedItems.Where(item => IsInTerritory(item, currentTerritory)).ToList()
             : resolvedItems;
         var filteredItems = allItems
             .Where(MatchesSearch)
@@ -112,7 +112,7 @@ public sealed class MainWindow : Window, IDisposable
 
         DrawFilterCombos();
 
-        var nextCurrentZone = resolvedItems.FirstOrDefault(item => !item.IsComplete && item.CanOpenMap && item.TerritoryTypeId == currentTerritory);
+        var nextCurrentZone = resolvedItems.FirstOrDefault(item => !item.IsComplete && FindMapTargetForTerritory(item, currentTerritory) is not null);
 
         if (nextCurrentZone is null)
         {
@@ -121,7 +121,11 @@ public sealed class MainWindow : Window, IDisposable
 
         if (ImGui.Button("Next unlock in this zone") && nextCurrentZone is not null)
         {
-            plugin.UnlockData.OpenMap(nextCurrentZone);
+            var mapTarget = FindMapTargetForTerritory(nextCurrentZone, currentTerritory);
+            if (mapTarget is not null)
+            {
+                plugin.UnlockData.OpenMap(mapTarget);
+            }
         }
 
         if (ImGui.IsItemHovered())
@@ -428,6 +432,16 @@ public sealed class MainWindow : Window, IDisposable
             && string.Equals(target.Location.Place, location.Place, StringComparison.OrdinalIgnoreCase)
             && target.Location.X == location.X
             && target.Location.Y == location.Y);
+    }
+
+    private static bool IsInTerritory(ResolvedUnlockable item, uint territoryTypeId)
+    {
+        return FindMapTargetForTerritory(item, territoryTypeId) is not null;
+    }
+
+    private static ResolvedMapLocation? FindMapTargetForTerritory(ResolvedUnlockable item, uint territoryTypeId)
+    {
+        return item.MapTargets.FirstOrDefault(target => target.TerritoryTypeId == territoryTypeId);
     }
 
     private void DrawActions(ResolvedUnlockable item)
