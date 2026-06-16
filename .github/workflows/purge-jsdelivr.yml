@@ -1,0 +1,47 @@
+name: Purge jsDelivr
+
+on:
+  push:
+    branches:
+      - main
+      - plugin-repo
+    paths:
+      - "dalamud-plugin/dist/**"
+      - ".github/workflows/purge-jsdelivr.yml"
+  workflow_dispatch:
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge plugin CDN paths
+        shell: bash
+        run: |
+          set -u
+          urls=(
+            "https://purge.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@plugin-repo/dalamud-plugin/dist/pluginmaster.json"
+            "https://purge.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@plugin-repo/dalamud-plugin/dist/VaelarisUnlockList-0.1.17.0.zip"
+            "https://purge.jsdelivr.net/gh/hartturmch/ffxiv-unlocklist@plugin-repo/dalamud-plugin/dist/icon.png"
+          )
+
+          for attempt in 1 2 3 4 5 6; do
+            echo "purge attempt ${attempt}"
+            ok=0
+            for url in "${urls[@]}"; do
+              status="$(curl -sS -o /tmp/purge.json -w "%{http_code}" "$url" || true)"
+              echo "$url -> $status"
+              cat /tmp/purge.json || true
+              echo
+              if [ "$status" = "200" ]; then
+                ok=$((ok + 1))
+              fi
+            done
+
+            if [ "$ok" -eq "${#urls[@]}" ]; then
+              exit 0
+            fi
+
+            sleep 20
+          done
+
+          exit 1
