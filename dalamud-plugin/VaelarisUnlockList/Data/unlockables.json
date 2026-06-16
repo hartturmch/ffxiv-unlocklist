@@ -15452,9 +15452,9 @@
       "locations": [
         {
           "place": "Thavnair",
-          "text": "X:? Y:?:Thavnair",
-          "x": null,
-          "y": null,
+          "text": "X:10.4, Y:23.8:Thavnair",
+          "x": 10.4,
+          "y": 23.8,
           "z": null
         }
       ],
