@@ -16835,11 +16835,11 @@
       "level": "99",
       "itemLevel": "99",
       "expansion": "",
-      "zone": "Tuliyollal (X:12.4, Y:12.9",
+      "zone": "Tuliyollal",
       "locations": [
         {
-          "place": "Tuliyollal (X:12.4, Y:12.9",
-          "text": "Tuliyollal (X:12.4, Y:12.9",
+          "place": "Tuliyollal",
+          "text": "X:12.4, Y:12.9:Tuliyollal",
           "x": 12.4,
           "y": 12.9,
           "z": null

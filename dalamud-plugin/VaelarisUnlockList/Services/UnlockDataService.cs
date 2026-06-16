@@ -99,7 +99,8 @@ public sealed class UnlockDataService
             || questAvailability.IsAvailable
             || !hasKnownRequirements
             || requiredQuestIds.Any(IsQuestComplete);
-        var mapTarget = ResolveMapTarget(item, gameData);
+        var mapTargets = ResolveMapTargets(item, gameData);
+        var mapTarget = mapTargets.FirstOrDefault();
 
         return new ResolvedUnlockable
         {
@@ -110,6 +111,7 @@ public sealed class UnlockDataService
             TerritoryTypeId = mapTarget?.TerritoryTypeId,
             MapId = mapTarget?.MapId,
             MapLocation = mapTarget?.Location,
+            MapTargets = mapTargets,
             IsComplete = isComplete,
             IsAutoTracked = autoTracked,
             IsAvailable = isAvailable,
@@ -179,16 +181,22 @@ public sealed class UnlockDataService
 
     public bool OpenMap(ResolvedUnlockable unlockable)
     {
-        if (!unlockable.CanOpenMap || unlockable.TerritoryTypeId is null || unlockable.MapId is null || unlockable.MapLocation?.X is null || unlockable.MapLocation.Y is null)
+        var mapTarget = unlockable.MapTargets.FirstOrDefault();
+        return mapTarget is not null && OpenMap(mapTarget);
+    }
+
+    public bool OpenMap(ResolvedMapLocation mapTarget)
+    {
+        if (mapTarget.Location.X is null || mapTarget.Location.Y is null)
         {
             return false;
         }
 
         var payload = new MapLinkPayload(
-            unlockable.TerritoryTypeId.Value,
-            unlockable.MapId.Value,
-            unlockable.MapLocation.X.Value,
-            unlockable.MapLocation.Y.Value);
+            mapTarget.TerritoryTypeId,
+            mapTarget.MapId,
+            mapTarget.Location.X.Value,
+            mapTarget.Location.Y.Value);
 
         return gameGui.OpenMapWithMapLink(payload);
     }
@@ -787,52 +795,95 @@ public sealed class UnlockDataService
         return false;
     }
 
-    private ResolvedMapTarget? ResolveMapTarget(UnlockableEntry item, GameDataIds gameData)
+    private List<ResolvedMapLocation> ResolveMapTargets(UnlockableEntry item, GameDataIds gameData)
     {
-        if (gameData.TerritoryTypeId is not null && gameData.MapId is not null)
-        {
-            var explicitLocation = item.Locations.FirstOrDefault(location => location.X is not null && location.Y is not null);
-            if (explicitLocation is not null)
-            {
-                return new ResolvedMapTarget(gameData.TerritoryTypeId.Value, gameData.MapId.Value, explicitLocation);
-            }
-        }
-
-        var questMapTarget = ResolveMapTargetFromQuestIssuer(item, gameData);
-        if (questMapTarget is not null)
-        {
-            return questMapTarget;
-        }
-
+        var results = new List<ResolvedMapLocation>();
         foreach (var location in item.Locations)
         {
-            if (location.X is null || location.Y is null)
+            var mapTarget = ResolveMapTargetForLocation(item, gameData, location);
+            if (mapTarget is not null
+                && results.All(existing => existing.TerritoryTypeId != mapTarget.TerritoryTypeId
+                    || existing.MapId != mapTarget.MapId
+                    || existing.Location.X != mapTarget.Location.X
+                    || existing.Location.Y != mapTarget.Location.Y))
             {
-                continue;
-            }
-
-            var place = FirstNonEmpty(location.Place, item.Zone);
-            if (string.IsNullOrWhiteSpace(place))
-            {
-                continue;
-            }
-
-            if (!TryGetTerritoryTargets(place, out var targets))
-            {
-                continue;
-            }
-
-            var target = targets.FirstOrDefault(target => target.MapId != 0);
-            if (target is not null)
-            {
-                return new ResolvedMapTarget(target.TerritoryTypeId, target.MapId, location);
+                results.Add(mapTarget);
             }
         }
 
-        return null;
+        if (results.Count == 0)
+        {
+            var questMapTarget = ResolveMapTargetFromQuestIssuer(item, gameData);
+            if (questMapTarget is not null)
+            {
+                results.Add(questMapTarget);
+            }
+        }
+
+        return results;
     }
 
-    private ResolvedMapTarget? ResolveMapTargetFromQuestIssuer(UnlockableEntry item, GameDataIds gameData)
+    private ResolvedMapLocation? ResolveMapTarget(UnlockableEntry item, GameDataIds gameData)
+    {
+        return ResolveMapTargets(item, gameData).FirstOrDefault();
+    }
+
+    private ResolvedMapLocation? ResolveMapTargetForLocation(UnlockableEntry item, GameDataIds gameData, UnlockLocation location)
+    {
+        if (location.X is null || location.Y is null)
+        {
+            return null;
+        }
+
+        if (gameData.TerritoryTypeId is not null
+            && gameData.MapId is not null
+            && MapDataMatchesPlace(gameData.TerritoryTypeId.Value, gameData.MapId.Value, FirstNonEmpty(location.Place, item.Zone)))
+        {
+            return new ResolvedMapLocation(gameData.TerritoryTypeId.Value, gameData.MapId.Value, location);
+        }
+
+        var place = FirstNonEmpty(location.Place, item.Zone);
+        if (string.IsNullOrWhiteSpace(place))
+        {
+            return null;
+        }
+
+        if (!TryGetTerritoryTargets(place, out var targets))
+        {
+            return null;
+        }
+
+        var target = targets.FirstOrDefault(target => target.MapId != 0);
+        return target is not null
+            ? new ResolvedMapLocation(target.TerritoryTypeId, target.MapId, location)
+            : null;
+    }
+
+    private bool MapDataMatchesPlace(uint territoryTypeId, uint mapId, string place)
+    {
+        if (string.IsNullOrWhiteSpace(place))
+        {
+            return true;
+        }
+
+        if (!dataManager.GetExcelSheet<TerritoryType>().TryGetRow(territoryTypeId, out var territory)
+            || !dataManager.GetExcelSheet<Map>().TryGetRow(mapId, out var map))
+        {
+            return false;
+        }
+
+        var actualPlaces = new[]
+        {
+            territory.PlaceName.Value.Name.ToString(),
+            territory.PlaceNameZone.Value.Name.ToString(),
+            map.PlaceName.Value.Name.ToString(),
+            map.PlaceNameSub.Value.Name.ToString(),
+        };
+
+        return actualPlaces.Any(actual => NamesMatch(place, actual));
+    }
+
+    private ResolvedMapLocation? ResolveMapTargetFromQuestIssuer(UnlockableEntry item, GameDataIds gameData)
     {
         var location = item.Locations.FirstOrDefault(location => location.X is not null && location.Y is not null);
         if (location is null || gameData.QuestId is null)
@@ -865,7 +916,7 @@ public sealed class UnlockDataService
         }
 
         return issuerLocation.Territory.RowId != 0 && issuerLocation.Map.RowId != 0
-            ? new ResolvedMapTarget(issuerLocation.Territory.RowId, issuerLocation.Map.RowId, location)
+            ? new ResolvedMapLocation(issuerLocation.Territory.RowId, issuerLocation.Map.RowId, location)
             : null;
     }
 
@@ -905,6 +956,9 @@ public sealed class UnlockDataService
 
             var mapPlaceName = territory.Map.Value.PlaceName.Value.Name.ToString();
             AddTerritoryTarget(mapPlaceName, territory.RowId, territory.Map.RowId);
+
+            var mapSubPlaceName = territory.Map.Value.PlaceNameSub.Value.Name.ToString();
+            AddTerritoryTarget(mapSubPlaceName, territory.RowId, territory.Map.RowId);
         }
     }
 
@@ -1214,6 +1268,7 @@ public sealed class UnlockDataService
     private static string NormalizeLooseKey(string value)
     {
         var normalized = NormalizeKey(value);
+        normalized = Regex.Replace(normalized, @"\(\s*ZONE\s*\)", string.Empty, RegexOptions.IgnoreCase);
         var loose = Regex.Replace(normalized, @"[^\p{L}\p{Nd}]+", string.Empty);
         return loose.StartsWith("THE", StringComparison.OrdinalIgnoreCase) && loose.Length > 3
             ? loose[3..]
@@ -1236,8 +1291,6 @@ public sealed class UnlockDataService
     private sealed record TerritoryMapTarget(uint TerritoryTypeId, uint MapId);
 
     private sealed record QuestNameTarget(uint RowId, string Name, string LooseName);
-
-    private sealed record ResolvedMapTarget(uint TerritoryTypeId, uint MapId, UnlockLocation Location);
 
     private sealed record QuestAvailability(bool IsAvailable, List<string> RequirementLines, List<string> MissingRequirementLines);
 }

@@ -61,7 +61,10 @@ const splitLocationFallback = (location) => {
     .filter(Boolean)
     .map((part) => {
       const segments = part.split(":");
-      const place = segments.length >= 4 ? segments.slice(3).join(":").trim() : "";
+      const parentheticalCoordinate = /^(?<place>.*?)\s*\(?\s*X:\s*-?\d+(?:\.\d+)?,\s*Y:\s*-?\d+(?:\.\d+)?/i.exec(part);
+      const place = segments.length >= 4
+        ? segments.slice(3).join(":").trim()
+        : normalizeText(parentheticalCoordinate?.groups?.place ?? "").replace(/[-,(]+$/g, "").trim();
       return {
         place,
         ...parseCoordinateText(part),

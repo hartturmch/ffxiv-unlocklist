@@ -301,11 +301,7 @@ public sealed class MainWindow : Window, IDisposable
             DrawQuestList("Quest Requirements", requirements);
         }
 
-        var locationText = FormatLocation(item.MapLocation ?? item.Entry.Locations.FirstOrDefault());
-        if (!string.IsNullOrWhiteSpace(locationText))
-        {
-            ImGui.TextWrapped($"Location: {locationText}");
-        }
+        DrawLocations(item);
 
         if (!string.IsNullOrWhiteSpace(item.Entry.Instructions))
         {
@@ -382,6 +378,56 @@ public sealed class MainWindow : Window, IDisposable
         }
 
         return !string.IsNullOrWhiteSpace(location.Text) ? location.Text : location.Place;
+    }
+
+    private void DrawLocations(ResolvedUnlockable item)
+    {
+        if (item.Entry.Locations.Count == 0)
+        {
+            return;
+        }
+
+        if (item.Entry.Locations.Count == 1)
+        {
+            var locationText = FormatLocation(item.MapLocation ?? item.Entry.Locations[0]);
+            if (!string.IsNullOrWhiteSpace(locationText))
+            {
+                ImGui.TextWrapped($"Location: {locationText}");
+            }
+
+            return;
+        }
+
+        ImGui.TextWrapped("Locations:");
+        for (var i = 0; i < item.Entry.Locations.Count; i++)
+        {
+            var location = item.Entry.Locations[i];
+            var locationText = FormatLocation(location);
+            if (string.IsNullOrWhiteSpace(locationText))
+            {
+                continue;
+            }
+
+            ImGui.BulletText(locationText);
+            var mapTarget = FindMapTarget(item, location);
+            if (mapTarget is not null)
+            {
+                ImGui.SameLine();
+                if (ImGui.SmallButton($"Open##{item.Entry.Id}-location-{i}"))
+                {
+                    plugin.UnlockData.OpenMap(mapTarget);
+                }
+            }
+        }
+    }
+
+    private static ResolvedMapLocation? FindMapTarget(ResolvedUnlockable item, UnlockLocation location)
+    {
+        return item.MapTargets.FirstOrDefault(target =>
+            string.Equals(target.Location.Text, location.Text, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(target.Location.Place, location.Place, StringComparison.OrdinalIgnoreCase)
+            && target.Location.X == location.X
+            && target.Location.Y == location.Y);
     }
 
     private void DrawActions(ResolvedUnlockable item)
