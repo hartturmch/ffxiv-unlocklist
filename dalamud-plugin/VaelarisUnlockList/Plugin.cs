@@ -11,12 +11,15 @@ namespace VaelarisUnlockList;
 public sealed class Plugin : IDalamudPlugin
 {
     internal const string CommandName = "/vunlock";
+    internal const string NpcCommandName = "/npc";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
+    [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IGameGui GameGui { get; private set; } = null!;
+    [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] internal static IUnlockState UnlockState { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
@@ -24,6 +27,8 @@ public sealed class Plugin : IDalamudPlugin
     internal Configuration Configuration { get; }
 
     internal UnlockDataService UnlockData { get; }
+
+    internal NpcNavigationService NpcNavigation { get; }
 
     internal WindowSystem WindowSystem { get; } = new("VaelarisUnlockList");
 
@@ -37,6 +42,7 @@ public sealed class Plugin : IDalamudPlugin
 
         UnlockData = new UnlockDataService(DataManager, GameGui, PlayerState, UnlockState, Log, Configuration);
         UnlockData.Load();
+        NpcNavigation = new NpcNavigationService(DataManager, GameGui, ClientState, CommandManager, Framework, ChatGui, Log);
 
         mainWindow = new MainWindow(this);
         WindowSystem.AddWindow(mainWindow);
@@ -44,6 +50,10 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "Open the Vaelaris unlockables checklist.",
+        });
+        CommandManager.AddHandler(NpcCommandName, new CommandInfo(OnNpcCommand)
+        {
+            HelpMessage = "Mark an NPC on the map and run /gtf. Usage: /npc <npc name>",
         });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
@@ -58,6 +68,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleMainUi;
 
         CommandManager.RemoveHandler(CommandName);
+        CommandManager.RemoveHandler(NpcCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -70,5 +81,10 @@ public sealed class Plugin : IDalamudPlugin
     private void OnCommand(string command, string args)
     {
         ToggleMainUi();
+    }
+
+    private void OnNpcCommand(string command, string args)
+    {
+        NpcNavigation.Navigate(args);
     }
 }
