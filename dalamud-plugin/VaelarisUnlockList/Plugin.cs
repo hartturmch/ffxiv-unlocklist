@@ -12,6 +12,7 @@ public sealed class Plugin : IDalamudPlugin
 {
     internal const string CommandName = "/vunlock";
     internal const string NpcCommandName = "/npc";
+    internal const string BellCommandName = "/bell";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -20,6 +21,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IGameGui GameGui { get; private set; } = null!;
     [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
+    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] internal static IUnlockState UnlockState { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
@@ -29,6 +31,8 @@ public sealed class Plugin : IDalamudPlugin
     internal UnlockDataService UnlockData { get; }
 
     internal NpcNavigationService NpcNavigation { get; }
+
+    internal BellNavigationService BellNavigation { get; }
 
     internal WindowSystem WindowSystem { get; } = new("VaelarisUnlockList");
 
@@ -43,6 +47,7 @@ public sealed class Plugin : IDalamudPlugin
         UnlockData = new UnlockDataService(DataManager, GameGui, PlayerState, UnlockState, Log, Configuration);
         UnlockData.Load();
         NpcNavigation = new NpcNavigationService(DataManager, GameGui, ClientState, CommandManager, Framework, ChatGui, Log);
+        BellNavigation = new BellNavigationService(DataManager, GameGui, ClientState, ObjectTable, CommandManager, Framework, ChatGui, Log);
 
         mainWindow = new MainWindow(this);
         WindowSystem.AddWindow(mainWindow);
@@ -54,6 +59,10 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.AddHandler(NpcCommandName, new CommandInfo(OnNpcCommand)
         {
             HelpMessage = "Mark an NPC on the map and run /gtf. Usage: /npc <npc name>",
+        });
+        CommandManager.AddHandler(BellCommandName, new CommandInfo(OnBellCommand)
+        {
+            HelpMessage = "Mark the nearest retainer bell on the map and run /gtf.",
         });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
@@ -69,6 +78,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.RemoveHandler(CommandName);
         CommandManager.RemoveHandler(NpcCommandName);
+        CommandManager.RemoveHandler(BellCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -86,5 +96,10 @@ public sealed class Plugin : IDalamudPlugin
     private void OnNpcCommand(string command, string args)
     {
         NpcNavigation.Navigate(args);
+    }
+
+    private void OnBellCommand(string command, string args)
+    {
+        BellNavigation.Navigate();
     }
 }
