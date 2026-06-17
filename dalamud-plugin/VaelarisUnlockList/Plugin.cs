@@ -13,6 +13,7 @@ public sealed class Plugin : IDalamudPlugin
     internal const string CommandName = "/vunlock";
     internal const string NpcCommandName = "/npc";
     internal const string BellCommandName = "/bell";
+    internal const string InnCommandName = "/inn";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -64,6 +65,10 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Mark the nearest retainer bell on the map and run /gtf.",
         });
+        CommandManager.AddHandler(InnCommandName, new CommandInfo(OnInnCommand)
+        {
+            HelpMessage = "Run /li inn.",
+        });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
@@ -79,6 +84,7 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(CommandName);
         CommandManager.RemoveHandler(NpcCommandName);
         CommandManager.RemoveHandler(BellCommandName);
+        CommandManager.RemoveHandler(InnCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -101,5 +107,13 @@ public sealed class Plugin : IDalamudPlugin
     private void OnBellCommand(string command, string args)
     {
         BellNavigation.Navigate();
+    }
+
+    private void OnInnCommand(string command, string args)
+    {
+        if (!CommandManager.ProcessCommand("/li inn"))
+        {
+            ChatGui.PrintError("/li inn was not found. Install/enable Lifestream or run /li inn manually.");
+        }
     }
 }

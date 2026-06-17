@@ -87,6 +87,12 @@ public sealed class BellNavigationService
         }
 
         var currentNames = GetCurrentTerritoryNames(currentTerritory);
+        var housingFallback = FindHousingFallback(currentNames, allLocations);
+        if (housingFallback is not null)
+        {
+            return housingFallback;
+        }
+
         var sameArea = allLocations
             .Select(location => new
             {
@@ -161,6 +167,8 @@ public sealed class BellNavigationService
     {
         var results = new List<BellMapLocation>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        AddKnownBellLocations(results, seen);
+
         var bellNameIds = dataManager.GetExcelSheet<EObjName>()
             .Where(name => IsRetainerBellName(name.Singular.ToString()))
             .Select(name => name.RowId)
@@ -218,10 +226,73 @@ public sealed class BellNavigationService
         return results;
     }
 
+    private void AddKnownBellLocations(List<BellMapLocation> results, HashSet<string> seen)
+    {
+        foreach (var known in KnownBellLocations)
+        {
+            if (!dataManager.GetExcelSheet<TerritoryType>().TryGetRow(known.TerritoryTypeId, out var territory))
+            {
+                continue;
+            }
+
+            var map = territory.Map.ValueNullable;
+            if (map is null || map.Value.RowId == 0)
+            {
+                continue;
+            }
+
+            var mapCoordinates = MapUtil.WorldToMap(new Vector2(known.WorldPosition.X, known.WorldPosition.Z), map.Value);
+            if (!IsUsableMapCoordinate(mapCoordinates.X) || !IsUsableMapCoordinate(mapCoordinates.Y))
+            {
+                continue;
+            }
+
+            var zoneName = FirstNonEmpty(
+                territory.PlaceName.Value.Name.ToString(),
+                territory.PlaceNameZone.Value.Name.ToString(),
+                map.Value.PlaceName.Value.Name.ToString(),
+                map.Value.PlaceNameSub.Value.Name.ToString(),
+                known.ZoneName);
+            var roundedX = MathF.Round(mapCoordinates.X, 1);
+            var roundedY = MathF.Round(mapCoordinates.Y, 1);
+            var key = $"{known.TerritoryTypeId}|{map.Value.RowId}|{roundedX:0.0}|{roundedY:0.0}";
+            if (!seen.Add(key))
+            {
+                continue;
+            }
+
+            results.Add(new BellMapLocation(
+                "Summoning Bell",
+                zoneName,
+                known.TerritoryTypeId,
+                map.Value.RowId,
+                roundedX,
+                roundedY,
+                known.WorldPosition));
+        }
+    }
+
     private static bool IsRetainerBellName(string name)
     {
         return name.Equals("Summoning Bell", StringComparison.OrdinalIgnoreCase)
             || name.Equals("Retainer Bell", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static BellMapLocation? FindHousingFallback(HashSet<string> currentNames, IReadOnlyList<BellMapLocation> locations)
+    {
+        var territoryId = currentNames switch
+        {
+            var names when ContainsAny(names, "mist", "topmast") => 129u,
+            var names when ContainsAny(names, "thelavenderbeds", "lavenderbeds", "lilyhills") => 133u,
+            var names when ContainsAny(names, "thegoblet", "goblet", "sultanasbreath") => 131u,
+            var names when ContainsAny(names, "shirogane", "kobaigoten") => 628u,
+            var names when ContainsAny(names, "empyreum", "ingleside") => 419u,
+            _ => 0u,
+        };
+
+        return territoryId == 0
+            ? null
+            : locations.FirstOrDefault(location => location.TerritoryTypeId == territoryId);
     }
 
     private static bool IsUsableMapCoordinate(float value)
@@ -233,9 +304,14 @@ public sealed class BellNavigationService
     {
         return location.ZoneName.Equals("Limsa Lominsa Lower Decks", StringComparison.OrdinalIgnoreCase)
             || location.ZoneName.Equals("Ul'dah - Steps of Thal", StringComparison.OrdinalIgnoreCase)
-            || location.ZoneName.Equals("New Gridania", StringComparison.OrdinalIgnoreCase)
+            || location.ZoneName.Equals("Old Gridania", StringComparison.OrdinalIgnoreCase)
             || location.ZoneName.Equals("Old Sharlayan", StringComparison.OrdinalIgnoreCase)
             || location.ZoneName.Equals("Tuliyollal", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsAny(HashSet<string> names, params string[] candidates)
+    {
+        return candidates.Any(candidate => names.Contains(candidate));
     }
 
     private static void AddName(HashSet<string> names, string name)
@@ -261,4 +337,23 @@ public sealed class BellNavigationService
     {
         return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? string.Empty;
     }
+
+    private static readonly KnownBellLocation[] KnownBellLocations =
+    [
+        new("Limsa Lominsa Lower Decks", 129, new Vector3(-123.88806f, 17.990356f, 21.469421f)),
+        new("Old Gridania", 133, new Vector3(171.00781f, 15.487854f, -101.487854f)),
+        new("Ul'dah - Steps of Thal", 131, new Vector3(148.91272f, 3.982544f, -44.205383f)),
+        new("The Pillars", 419, new Vector3(-151.1712f, -12.64978f, -11.7647705f)),
+        new("Rhalgr's Reach", 635, new Vector3(-57.63336f, -0.015319824f, 49.30188f)),
+        new("Kugane", 628, new Vector3(19.394226f, 4.043579f, 53.025024f)),
+        new("The Doman Enclave", 759, new Vector3(60.56299f, -0.015319824f, -3.982666f)),
+        new("The Crystarium", 819, new Vector3(-69.840576f, -7.7058716f, 123.49121f)),
+        new("Eulmore", 820, new Vector3(7.1869507f, 83.17688f, 31.448853f)),
+        new("Old Sharlayan", 962, new Vector3(42.09961f, 2.517002f, -39.414062f)),
+        new("Radz-at-Han", 963, new Vector3(26.749023f, -0.015319824f, -53.696533f)),
+        new("Tuliyollal", 1185, new Vector3(18.57019f, -14.023071f, 120.408936f)),
+        new("Solution Nine", 1186, new Vector3(-151.59845f, 0.59503174f, -15.304871f)),
+    ];
+
+    private sealed record KnownBellLocation(string ZoneName, uint TerritoryTypeId, Vector3 WorldPosition);
 }
