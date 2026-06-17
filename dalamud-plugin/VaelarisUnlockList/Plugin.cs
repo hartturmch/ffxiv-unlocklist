@@ -14,6 +14,7 @@ public sealed class Plugin : IDalamudPlugin
     internal const string NpcCommandName = "/npc";
     internal const string BellCommandName = "/bell";
     internal const string InnCommandName = "/inn";
+    internal const string MarketBoardCommandName = "/mb";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -69,6 +70,10 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Run /li inn.",
         });
+        CommandManager.AddHandler(MarketBoardCommandName, new CommandInfo(OnMarketBoardCommand)
+        {
+            HelpMessage = "Run /li mb.",
+        });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
@@ -85,6 +90,7 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(NpcCommandName);
         CommandManager.RemoveHandler(BellCommandName);
         CommandManager.RemoveHandler(InnCommandName);
+        CommandManager.RemoveHandler(MarketBoardCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -114,6 +120,14 @@ public sealed class Plugin : IDalamudPlugin
         if (!CommandManager.ProcessCommand("/li inn"))
         {
             ChatGui.PrintError("/li inn was not found. Install/enable Lifestream or run /li inn manually.");
+        }
+    }
+
+    private void OnMarketBoardCommand(string command, string args)
+    {
+        if (!CommandManager.ProcessCommand("/li mb"))
+        {
+            ChatGui.PrintError("/li mb was not found. Install/enable Lifestream or run /li mb manually.");
         }
     }
 }
