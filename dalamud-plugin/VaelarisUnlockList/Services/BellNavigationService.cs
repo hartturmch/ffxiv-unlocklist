@@ -48,14 +48,11 @@ public sealed class BellNavigationService
         }
 
         var currentTerritory = clientState.TerritoryType;
-        var bell = GetLocations()
-            .Where(location => location.TerritoryTypeId == currentTerritory)
-            .OrderBy(location => Vector3.DistanceSquared(player.Position, location.WorldPosition))
-            .FirstOrDefault();
+        var bell = FindBestBell(player.Position, currentTerritory);
 
         if (bell is null)
         {
-            chatGui.PrintError("No retainer bell found in your current zone.");
+            chatGui.PrintError("No retainer bell location found.");
             return;
         }
 
@@ -66,7 +63,8 @@ public sealed class BellNavigationService
             return;
         }
 
-        chatGui.Print($"Nearest retainer bell: {bell.ZoneName} ({bell.X:0.#}, {bell.Y:0.#})");
+        var currentZoneText = bell.TerritoryTypeId == currentTerritory ? string.Empty : " in a nearby zone";
+        chatGui.Print($"Nearest retainer bell{currentZoneText}: {bell.ZoneName} ({bell.X:0.#}, {bell.Y:0.#})");
         framework.RunOnTick(() =>
         {
             if (!commandManager.ProcessCommand("/gtf"))
@@ -74,6 +72,78 @@ public sealed class BellNavigationService
                 chatGui.PrintError("Map flag opened, but /gtf was not found. Install/enable your goto-flag plugin or run /gtf manually.");
             }
         }, TimeSpan.FromMilliseconds(250));
+    }
+
+    private BellMapLocation? FindBestBell(Vector3 playerPosition, uint currentTerritory)
+    {
+        var allLocations = GetLocations();
+        var sameTerritory = allLocations
+            .Where(location => location.TerritoryTypeId == currentTerritory)
+            .OrderBy(location => Vector3.DistanceSquared(playerPosition, location.WorldPosition))
+            .FirstOrDefault();
+        if (sameTerritory is not null)
+        {
+            return sameTerritory;
+        }
+
+        var currentNames = GetCurrentTerritoryNames(currentTerritory);
+        var sameArea = allLocations
+            .Select(location => new
+            {
+                Location = location,
+                Score = ScoreNearbyZone(location, currentNames),
+            })
+            .Where(match => match.Score > 0)
+            .OrderByDescending(match => match.Score)
+            .ThenBy(match => Vector3.DistanceSquared(playerPosition, match.Location.WorldPosition))
+            .ThenBy(match => match.Location.ZoneName, StringComparer.OrdinalIgnoreCase)
+            .Select(match => match.Location)
+            .FirstOrDefault();
+        if (sameArea is not null)
+        {
+            return sameArea;
+        }
+
+        return allLocations
+            .OrderBy(location => IsPreferredHub(location) ? 0 : 1)
+            .ThenBy(location => location.ZoneName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(location => location.X)
+            .ThenBy(location => location.Y)
+            .FirstOrDefault();
+    }
+
+    private HashSet<string> GetCurrentTerritoryNames(uint territoryTypeId)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!dataManager.GetExcelSheet<TerritoryType>().TryGetRow(territoryTypeId, out var territory))
+        {
+            return names;
+        }
+
+        AddName(names, territory.PlaceName.Value.Name.ToString());
+        AddName(names, territory.PlaceNameZone.Value.Name.ToString());
+        AddName(names, territory.Map.Value.PlaceName.Value.Name.ToString());
+        AddName(names, territory.Map.Value.PlaceNameSub.Value.Name.ToString());
+        return names;
+    }
+
+    private static int ScoreNearbyZone(BellMapLocation location, HashSet<string> currentNames)
+    {
+        var zoneKey = NormalizePlaceName(location.ZoneName);
+        if (string.IsNullOrWhiteSpace(zoneKey))
+        {
+            return 0;
+        }
+
+        if (currentNames.Contains(zoneKey))
+        {
+            return 100;
+        }
+
+        return currentNames.Any(name => name.Contains(zoneKey, StringComparison.OrdinalIgnoreCase)
+            || zoneKey.Contains(name, StringComparison.OrdinalIgnoreCase))
+            ? 50
+            : 0;
     }
 
     private IReadOnlyList<BellMapLocation> GetLocations()
@@ -157,6 +227,34 @@ public sealed class BellNavigationService
     private static bool IsUsableMapCoordinate(float value)
     {
         return !float.IsNaN(value) && value >= 0f && value <= 50f;
+    }
+
+    private static bool IsPreferredHub(BellMapLocation location)
+    {
+        return location.ZoneName.Equals("Limsa Lominsa Lower Decks", StringComparison.OrdinalIgnoreCase)
+            || location.ZoneName.Equals("Ul'dah - Steps of Thal", StringComparison.OrdinalIgnoreCase)
+            || location.ZoneName.Equals("New Gridania", StringComparison.OrdinalIgnoreCase)
+            || location.ZoneName.Equals("Old Sharlayan", StringComparison.OrdinalIgnoreCase)
+            || location.ZoneName.Equals("Tuliyollal", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AddName(HashSet<string> names, string name)
+    {
+        var key = NormalizePlaceName(name);
+        if (!string.IsNullOrWhiteSpace(key))
+        {
+            names.Add(key);
+        }
+    }
+
+    private static string NormalizePlaceName(string value)
+    {
+        return value
+            .Normalize()
+            .ToLowerInvariant()
+            .Replace("'", string.Empty)
+            .Replace(" ", string.Empty)
+            .Replace("-", string.Empty);
     }
 
     private static string FirstNonEmpty(params string[] values)
