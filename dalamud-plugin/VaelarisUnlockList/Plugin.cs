@@ -3,6 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using VaelarisUnlockList.Models;
 using VaelarisUnlockList.Services;
 using VaelarisUnlockList.Windows;
 
@@ -16,6 +17,7 @@ public sealed class Plugin : IDalamudPlugin
     internal const string InnCommandName = "/inn";
     internal const string MarketBoardCommandName = "/mb";
     internal const string JumboBuyCommandName = "/jumbobuy";
+    internal const string FashionCommandName = "/fashion";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -79,6 +81,10 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Mark the Jumbo Cactpot Broker in the Gold Saucer and run /gtf.",
         });
+        CommandManager.AddHandler(FashionCommandName, new CommandInfo(OnFashionCommand)
+        {
+            HelpMessage = "Mark the Fashion Report location in the Gold Saucer and run /gtf.",
+        });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
@@ -97,6 +103,7 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(InnCommandName);
         CommandManager.RemoveHandler(MarketBoardCommandName);
         CommandManager.RemoveHandler(JumboBuyCommandName);
+        CommandManager.RemoveHandler(FashionCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -139,15 +146,36 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnJumboBuyCommand(string command, string args)
     {
-        var destination = UnlockData.Items.FirstOrDefault(item =>
-            item.Locations.Any(location =>
-                string.Equals(location.Place, "The Gold Saucer", StringComparison.OrdinalIgnoreCase)
-                && location.X == 8.5f
-                && location.Y == 5.9f));
+        NavigateToGoldSaucer(8.5f, 5.9f, "Jumbo Cactpot");
+    }
 
-        if (destination is null || !UnlockData.OpenMap(UnlockData.Resolve(destination)))
+    private void OnFashionCommand(string command, string args)
+    {
+        NavigateToGoldSaucer(7.2f, 7.4f, "Fashion Report");
+    }
+
+    private void NavigateToGoldSaucer(float x, float y, string destinationName)
+    {
+        var goldSaucerEntry = UnlockData.Items.FirstOrDefault(item =>
+            item.Locations.Any(location => string.Equals(location.Place, "The Gold Saucer", StringComparison.OrdinalIgnoreCase)));
+        var baseTarget = goldSaucerEntry is null
+            ? null
+            : UnlockData.Resolve(goldSaucerEntry).MapTargets.FirstOrDefault();
+        if (baseTarget is null)
         {
-            ChatGui.PrintError("Could not open the Jumbo Cactpot map location.");
+            ChatGui.PrintError($"Could not resolve the {destinationName} map location.");
+            return;
+        }
+
+        var destination = new ResolvedMapLocation(baseTarget.TerritoryTypeId, baseTarget.MapId, new UnlockLocation
+        {
+            Place = "The Gold Saucer",
+            X = x,
+            Y = y,
+        });
+        if (!UnlockData.OpenMap(destination))
+        {
+            ChatGui.PrintError($"Could not open the {destinationName} map location.");
             return;
         }
 
