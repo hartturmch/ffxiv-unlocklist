@@ -93,6 +93,12 @@ public sealed class BellNavigationService
             return housingFallback;
         }
 
+        var regionalFallback = FindRegionalFallback(currentTerritory, currentNames, allLocations);
+        if (regionalFallback is not null)
+        {
+            return regionalFallback;
+        }
+
         var sameArea = allLocations
             .Select(location => new
             {
@@ -110,12 +116,7 @@ public sealed class BellNavigationService
             return sameArea;
         }
 
-        return allLocations
-            .OrderBy(location => IsPreferredHub(location) ? 0 : 1)
-            .ThenBy(location => location.ZoneName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(location => location.X)
-            .ThenBy(location => location.Y)
-            .FirstOrDefault();
+        return null;
     }
 
     private HashSet<string> GetCurrentTerritoryNames(uint territoryTypeId)
@@ -128,6 +129,7 @@ public sealed class BellNavigationService
 
         AddName(names, territory.PlaceName.Value.Name.ToString());
         AddName(names, territory.PlaceNameZone.Value.Name.ToString());
+        AddName(names, territory.PlaceNameRegion.Value.Name.ToString());
         AddName(names, territory.Map.Value.PlaceName.Value.Name.ToString());
         AddName(names, territory.Map.Value.PlaceNameSub.Value.Name.ToString());
         return names;
@@ -295,18 +297,52 @@ public sealed class BellNavigationService
             : locations.FirstOrDefault(location => location.TerritoryTypeId == territoryId);
     }
 
+    private BellMapLocation? FindRegionalFallback(uint currentTerritory, HashSet<string> currentNames, IReadOnlyList<BellMapLocation> locations)
+    {
+        var territoryId = currentNames switch
+        {
+            var names when ContainsAny(names, "lanoscea", "limsalominsa", "mist", "wolvesdenpier") => 129u,
+            var names when ContainsAny(names, "blackshroud", "gridania", "lavenderbeds") => 133u,
+            var names when ContainsAny(names, "thanalan", "uldah", "goblet", "goldsaucer") => 131u,
+            var names when ContainsAny(names, "coerthas", "dravania", "abalanthiasspine", "ishgard") => 419u,
+            var names when ContainsAny(names, "gyrabania", "rhalgrsreach") => 635u,
+            var names when ContainsAny(names, "hingashi", "othard", "kugane", "rubysea", "yanxia", "azimsteppe") => 628u,
+            var names when ContainsAny(names, "kholusia", "eulmore") => 820u,
+            var names when ContainsAny(names, "norvrandt", "lakeland", "amharaeng", "ilmheg", "raktikagreatwood", "tempest", "crystarium") => 819u,
+            var names when ContainsAny(names, "thavnair", "radzathan") => 963u,
+            var names when ContainsAny(names, "northernempty", "oldsharlayan", "labyrinthos", "garlemald", "marelamentorum", "ultimathule") => 962u,
+            var names when ContainsAny(names, "xaktural", "shaaloani", "heritagefound", "solutionnine", "livingmemory") => 1186u,
+            var names when ContainsAny(names, "yoktural", "tuliyollal", "urqopacha", "kozamauka", "yaktel") => 1185u,
+            _ => GetExpansionHubTerritoryId(currentTerritory),
+        };
+
+        return territoryId == 0
+            ? null
+            : locations.FirstOrDefault(location => location.TerritoryTypeId == territoryId);
+    }
+
+    private uint GetExpansionHubTerritoryId(uint currentTerritory)
+    {
+        if (!dataManager.GetExcelSheet<TerritoryType>().TryGetRow(currentTerritory, out var territory))
+        {
+            return 0;
+        }
+
+        return territory.ExVersion.RowId switch
+        {
+            0 => 131u,
+            1 => 419u,
+            2 => 635u,
+            3 => 819u,
+            4 => 962u,
+            5 => 1185u,
+            _ => 0u,
+        };
+    }
+
     private static bool IsUsableMapCoordinate(float value)
     {
         return !float.IsNaN(value) && value >= 0f && value <= 50f;
-    }
-
-    private static bool IsPreferredHub(BellMapLocation location)
-    {
-        return location.ZoneName.Equals("Limsa Lominsa Lower Decks", StringComparison.OrdinalIgnoreCase)
-            || location.ZoneName.Equals("Ul'dah - Steps of Thal", StringComparison.OrdinalIgnoreCase)
-            || location.ZoneName.Equals("Old Gridania", StringComparison.OrdinalIgnoreCase)
-            || location.ZoneName.Equals("Old Sharlayan", StringComparison.OrdinalIgnoreCase)
-            || location.ZoneName.Equals("Tuliyollal", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsAny(HashSet<string> names, params string[] candidates)
