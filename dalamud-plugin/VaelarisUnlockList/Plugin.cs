@@ -15,6 +15,7 @@ public sealed class Plugin : IDalamudPlugin
     internal const string BellCommandName = "/bell";
     internal const string InnCommandName = "/inn";
     internal const string MarketBoardCommandName = "/mb";
+    internal const string JumboBuyCommandName = "/jumbobuy";
 
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -74,6 +75,10 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Run /li mb.",
         });
+        CommandManager.AddHandler(JumboBuyCommandName, new CommandInfo(OnJumboBuyCommand)
+        {
+            HelpMessage = "Mark the Jumbo Cactpot Broker in the Gold Saucer and run /gtf.",
+        });
 
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
@@ -91,6 +96,7 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(BellCommandName);
         CommandManager.RemoveHandler(InnCommandName);
         CommandManager.RemoveHandler(MarketBoardCommandName);
+        CommandManager.RemoveHandler(JumboBuyCommandName);
         WindowSystem.RemoveAllWindows();
         mainWindow.Dispose();
     }
@@ -129,5 +135,28 @@ public sealed class Plugin : IDalamudPlugin
         {
             ChatGui.PrintError("/li mb was not found. Install/enable Lifestream or run /li mb manually.");
         }
+    }
+
+    private void OnJumboBuyCommand(string command, string args)
+    {
+        var destination = UnlockData.Items.FirstOrDefault(item =>
+            item.Locations.Any(location =>
+                string.Equals(location.Place, "The Gold Saucer", StringComparison.OrdinalIgnoreCase)
+                && location.X == 8.5f
+                && location.Y == 5.9f));
+
+        if (destination is null || !UnlockData.OpenMap(UnlockData.Resolve(destination)))
+        {
+            ChatGui.PrintError("Could not open the Jumbo Cactpot map location.");
+            return;
+        }
+
+        Framework.RunOnTick(() =>
+        {
+            if (!CommandManager.ProcessCommand("/gtf"))
+            {
+                ChatGui.PrintError("Map flag opened, but /gtf was not found. Install/enable your goto-flag plugin or run /gtf manually.");
+            }
+        }, TimeSpan.FromMilliseconds(250));
     }
 }
